@@ -1,6 +1,6 @@
-# ROS2-car (WIP)
+# ROS2-car (WIP) (0% Complete)
 
-### Current status - 0% Complete
+[README_ELI5](./README_ELI5.md)
 
 ## Goal
 
@@ -9,10 +9,19 @@
 
 ## Hardware Components
 
-- **Desktop with ROS2**: Used for image recognition and high-level processing.
-- **Raspberry Pi for Remote Control**: Handles remote control operations and communication.
-- **Raspberry Pi/ESP32 for Low-Level Control**: Manages high-frequency tasks like steering and motor control.
-- **Tamiya TT-02 Base**: Serves as the chassis for the autonomous car, providing a robust and customizable platform.
+- **Desktop with ROS2**
+  - Image recognition
+  - SLAM
+  - Planning
+  - Miscellaneous computationally heavy processing
+- **Raspberry Pi for Remote Control**
+  - Remote control operation
+  - Sensor to ROS publishing
+  - Low-level, high-frequency control (VDC) (could be offloaded to ESP32)
+- **Vehicle**
+  - TT02 chassis for the autonomous car
+  - Battery for car
+  - Power bank for powering onboard electronics
 
 ## Targets
 
