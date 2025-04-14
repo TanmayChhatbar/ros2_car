@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+    <robot name="tt02">
+    <!-- simplified tt02 chassis definitions -->
+    <!-- includes vertical suspension and front steering -->
+        <material name="White">
+            <color rgba="0.95 0.95 0.95 1"/>
+        </material>
+        
+        <material name="Black">
+            <color rgba="0.1 0.1 0.1 1"/>
+        </material>
+        
+        <link name="base_link">
+            <visual>
+                <geometry>
+                    <!-- this file is from https://sketchfab.com/3d-models/subaru-brz-321a9ece66bb4616872892c01d279542 -->
+                    <mesh filename="file:///home/tanmay/ros2_ws/meshes/tt02_base_link.stl" />
+                </geometry>
+                <material name="White"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        
+        <!-- wheel front left -->
+        <link name="wheel_frl">
+            <visual>
+                <geometry>
+                    <mesh filename="file:///home/tanmay/ros2_ws/meshes/tt02_wheel.stl" />
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="susp_frl">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="hub_frl">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <joint name="base_frl_joint" type="prismatic">
+            <parent link="base_link"/>
+            <child link="susp_frl"/>
+            <origin xyz="0.129382 0.067852 -0.027459" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="-0.008" upper="0.008" velocity="0"/>
+        </joint>
+        <joint name="frl_steering_joint" type="revolute">
+            <parent link="susp_frl"/>
+            <child link="hub_frl"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="-0.6" upper="0.6" velocity="0"/>
+        </joint>
+        <joint name="frl_wheel_joint" type="continuous">
+            <parent link="hub_frl"/>
+            <child link="wheel_frl"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 1 0"/>
+        </joint>
+
+        <!-- wheel front right -->
+        <link name="wheel_frr">
+            <visual>
+                <geometry>
+                    <mesh filename="file:///home/tanmay/ros2_ws/meshes/tt02_wheel.stl" scale="1 -1 1"/>
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="susp_frr">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="hub_frr">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <joint name="base_frr_joint" type="prismatic">
+            <parent link="base_link"/>
+            <child link="susp_frr"/>
+            <origin xyz="0.129382 -0.067852 -0.027459" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="-0.008" upper="0.008" velocity="0"/>
+        </joint>
+        <joint name="frr_steering_joint" type="revolute">
+            <parent link="susp_frr"/>
+            <child link="hub_frr"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="-0.6" upper="0.6" velocity="0"/>
+        </joint>
+        <joint name="frr_wheel_joint" type="continuous">
+            <parent link="hub_frr"/>
+            <child link="wheel_frr"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 1 0"/>
+        </joint>
+
+        <!-- wheel rear left -->
+        <link name="wheel_rrl">
+            <visual>
+                <geometry>
+                    <mesh filename="file:///home/tanmay/ros2_ws/meshes/tt02_wheel.stl"/>
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="susp_rrl">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="hub_rrl">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <joint name="base_rrl_joint" type="prismatic">
+            <parent link="base_link"/>
+            <child link="susp_rrl"/>
+            <origin xyz="-0.129382 0.067852 -0.027459" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="-0.008" upper="0.008" velocity="0"/>
+        </joint>
+        <joint name="rrl_steering_joint" type="revolute">
+            <parent link="susp_rrl"/>
+            <child link="hub_rrl"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="-0.0" upper="0.0" velocity="0"/>
+        </joint>
+        <joint name="rrl_wheel_joint" type="continuous">
+            <parent link="hub_rrl"/>
+            <child link="wheel_rrl"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 1 0"/>
+        </joint>
+
+        <!-- wheel front right -->
+        <link name="wheel_rrr">
+            <visual>
+                <geometry>
+                    <mesh filename="file:///home/tanmay/ros2_ws/meshes/tt02_wheel.stl" scale="1 -1 1"/>
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="susp_rrr">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <link name="hub_rrr">
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0" length="0.0"/> 
+                </geometry>
+                <material name="Black"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </visual>
+        </link>
+        <joint name="base_rrr_joint" type="prismatic">
+            <parent link="base_link"/>
+            <child link="susp_rrr"/>
+            <origin xyz="-0.129382 -0.067852 -0.027459" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="-0.008" upper="0.008" velocity="0"/>
+        </joint>
+        <joint name="rrr_steering_joint" type="revolute">
+            <parent link="susp_rrr"/>
+            <child link="hub_rrr"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 0 1"/>
+            <limit effort="0" lower="0." upper="0." velocity="0"/>
+        </joint>
+        <joint name="rrr_wheel_joint" type="continuous">
+            <parent link="hub_rrr"/>
+            <child link="wheel_rrr"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <axis xyz="0 1 0"/>
+        </joint>
+
+    </robot>
