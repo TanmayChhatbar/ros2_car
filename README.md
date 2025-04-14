@@ -4,7 +4,6 @@
 
 ## Goal
 
-
 - Simultaneous Localization and Mapping (SLAM)
 - Autonomous drifting capabilities
 
@@ -17,16 +16,13 @@
 
 ## Targets
 
-- Validation in simulation.
--- C-based simulation for an AWD vehicle with a differential and drifting capabilities.
-- Control development.
-- deployment
-
-## Future Goals
-
-- Implementing a PID controller for better control of the car's speed and steering.
-- Integrating machine learning algorithms for improved decision-making capabilities.
-- Developing a user-friendly interface for easier operation and monitoring of the car's performance.
+- Validation in simulation
+  - Simulation for an AWD vehicle with a differential and drifting capabilities.
+- Control development
+  - PID Control
+  - Machine Learning
+- Deployment IRL
+  - TT02 chassis
 
 ## Contributing
 
