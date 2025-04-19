@@ -171,6 +171,7 @@ public:
         : data(data_), config(config_) {}
     Vehicle(const VehicleConfig &config_)
         : data(VehicleData()), config(config_) {}
+    Vehicle() : data(VehicleData()), config(VehicleConfig()) {}
 
     void calcWheelSlipsAndForces();
     void calcTireNormalLoads(); // update Fz_wheel array

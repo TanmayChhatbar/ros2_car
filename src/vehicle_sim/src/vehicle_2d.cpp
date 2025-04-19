@@ -1,9 +1,58 @@
 #pragma once
+// TODO :
+// use VehicleInput
 
 #include <cmath>    // for mathematical constants if needed
 #include <iostream> // for printing
 
-// vehicle state data
+class VehicleInput
+{
+    public:
+        // constructor
+        VehicleInput()
+            : steering_angle(0.0), motor_torque(0.0) {}
+
+        // getters and setters for steering angle and motor torque
+        void setSteeringAngle(double steering_angle_)
+        {
+            steering_angle = steering_angle_;
+        }
+        void getSteeringAngle(double &steering_angle_) const
+        {
+            steering_angle_ = steering_angle;
+        }
+        void setMotorTorque(double motor_torque_)
+        {
+            motor_torque = motor_torque_;
+        }
+        void getMotorTorque(double &motor_torque_) const
+        {
+            motor_torque_ = motor_torque;
+        }
+        void calcMotorTorque(double Tmax)
+        {
+            // calculate motor torque based on throttle input
+            motor_torque = throttle * Tmax;
+        }
+        void getInput(double &steering_angle_, double &throttle_) const
+        {
+            steering_angle_ = steering_angle;
+            throttle_ = throttle;
+        }
+        void setInput(double steering_angle, double throttle)
+        {
+            setSteeringAngle(steering_angle);
+            setThrottle(throttle);
+            calcMotorTorque();
+        }
+    private:
+        double steering_angle; // [rad] steering angle
+        double motor_torque;   // [Nm] motor torque
+        double throttle;      // [0, 1] throttle input
+
+        friend class Vehicle; // allow Vehicle to access private members
+};
+
 class VehicleData
 {
 public:
@@ -191,9 +240,9 @@ private:
     friend class Vehicle;
 };
 
-// pacejka tire model
 class TireConfig
 {
+    // pacejka tire model
 public:
     // constructor
     TireConfig()
@@ -247,7 +296,6 @@ private:
     friend class Vehicle;       // allow Vehicle to access private members
 };
 
-// vehicle configuration
 class VehicleConfig
 {
 public:
@@ -288,8 +336,11 @@ private:
 class Vehicle
 {
 public:
-    Vehicle(const VehicleData &data_, const VehicleConfig &config_)
+    Vehicle(const VehicleData &data_, const VehicleConfig &config_, const VehicleInput &input_)
         : data(data_), config(config_) {}
+    Vehicle(const VehicleConfig &config_)
+        : data(VehicleData()), config(config_) {}
+    Vehicle() : data(VehicleData()), config(VehicleConfig()) {}
 
     void calcWheelSlipsAndForces()
     {
@@ -435,7 +486,7 @@ public:
     }
     void stepSimulation() 
     {
-        setInput(0, 1);
+        input.setInput(0, 1);
         calcWheelSlipsAndForces();
         calcTireNormalLoads();
         calcNetForcesAndMoments();
@@ -443,12 +494,8 @@ public:
         double dt = 0.01; // time step
         calcNewState(dt);
     }
-    void setInput(double steering_angle, double throttle)
-    {
-        data.setSteeringAngle(steering_angle);
-        data.setThrottle(throttle);
-    }
 private:
     VehicleData data;
     VehicleConfig config;
+    VehicleInput input;
 };
