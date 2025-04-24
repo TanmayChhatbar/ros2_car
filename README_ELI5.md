@@ -1,28 +1,74 @@
 # ELI5 README (WIP)
 
-## Installation
+## Installation ([Ubuntu 24.04](https://releases.ubuntu.com/noble/)
 
-- Install [Ubuntu 24.04](https://ubuntu.com/download/desktop?version=24.04&architecture=amd64&lts=true)
-  - Download ISO from website above
-  - Make bootable USB using Rufus <https://rufus.ie/en/>
+- On desktop
+  - Download ISO from the [official website](https://ubuntu.com/download/desktop)
+  - Make bootable USB using [Rufus](https://rufus.ie/en/)
   - Install (Dual-boot or Standalone)
-- Install [Git](https://git-scm.com/downloads/linux)
-  
-- Install [ROS2 Desktop (jazzy)](https://docs.ros.org/en/jazzy/Installation.html)
-  - [colcon](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html)
-  - [rosdep](https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Rosdep.html)
+- On Raspberry Pi
+  - Download [Pi Imager](https://www.raspberrypi.com/software/)
+  - Select Ubuntu 24.04 Server in the Imager
+  - Customize OS settings in Imager
+    - hostname\
+    allows you to connect to the Pi through a terminal using\
+    ```ssh {USERNAME}@{HOSTNAME}.local```
+    - Username, Password
+    - WiFi settings\
+    to connect to the WiFi network
+    - Enable SSH \
+    allows you to connect to the Pi over SSH from the get-go, with no further setup required. Else you will need to connect the Pi to a monitor and setup
+  - Flash to Micro SD card using Imager
 
+## Installation (Software)
+
+- Install [Git](https://git-scm.com/downloads/linux)\
+Git is essential for repository management and version control
+- Install [ROS2 (jazzy)](https://docs.ros.org/en/jazzy/Installation.html)\
+Read this [section](#understanding-ros) if the question - "Why ROS?"
+  - Desktop-specific
+    - Install ros-jazzy-desktop
+    - Check out [ROS tutorials](https://docs.ros.org/en/jazzy/Tutorials.html) to understand its features
+  - Raspberry Pi-specific
+    - Install ros-jazzy-ros-base\
+    Since the Pi is running in [headless mode](https://en.wikipedia.org/wiki/Headless_software), the desktop version is unnecessary. More details on the differences [here](https://www.ros.org/reps/rep-2001.html#id32)
+    - Install demo talkers\
+    ```sudo apt install ros-jazzy-demo-nodes-cpp ros-jazzy-demo-nodes-cpp-native ros-jazzy-demo-nodes-py```\
+    to test whether the ROS2 nodes on desktop and Pi can communicate
+
+    - Install [colcon](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html)
+    - Install [rosdep](https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Rosdep.html)
+    - Initialize rosdep by running ```rosdep``` and following the commands
 - Setup repository
-  - Fork this repository on Github
-  - Clone forked repository on computer
+  - Fork this repository on Github (optional, but recommended if you intend to customize your project and track changes using Git on GitHub)
+  - Clone forked repository on computer (clone this repo if you haven't forked)
+- Enable camera support
+  - Build libcamera and rpicam-apps from source following this [guide](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera)
+    - libcamera that comes with apt does not detect Pi Camera on Ubuntu\
+    Hence, these libraries must be built from the [fork](https://github.com/raspberrypi/libcamera) developed by raspberrypi
+  - (TODO) Install [libcamera camera support for ROS2](https://github.com/christianrauch/camera_ros) on Pi
+    - WIP because installation using ```sudo apt install ros-$ROS_DISTRO-camera-ros``` breaks the libcamera/rpicam-apps\
+    ```libcamera-hello``` no longer is able to find a camera\
+    bruteforce resolution is to uninstall ros-$ROS_DISTRO-camera-ros using ```sudo apt remove --purge --autoremove ros-$ROS_DISTRO-camera-ros```\
+    but while this allows the originally built libcamera library to detect the camera, ROS support is gone
+
+## ROS2 Installation verification
+
+- Run ```ros2 run demo_nodes_cpp talker``` on Pi
+- Run ```ros2 run demo_nodes_cpp listener``` on Desktop
+- **Expectation**: The listener [node](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes.html) on the Desktop receives and displays messages sent by the talker [node](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes.html) on the Raspberry Pi
+  ![Demo Nodes Talker on Desktop](README_media/demo_nodes_cpp_talker_on_Pi.png)
+  ![Demo Nodes Listener on Pi](README_media/demo_nodes_cpp_listener_on_desktop.png)
 
 ## Understanding ROS
 
-- **What is ROS?**: Imagine you have a robot made of different parts - sensors to see, motors to move, and maybe even a camera to record. Each part may speak its own "language". ROS helps them all talk to each other smoothly.
-ROS is a essentially a software Lego set for building robotic systems. It provides ready-made tools and libraries to handle common tasks like controlling actuators, processing sensor data, or even communicating with other robots.
+- **What is ROS?**\
+Imagine you have a robot made of different parts - sensors to see, motors to move, and maybe even a camera to record\
+Each part may speak its own "language". ROS helps them all talk to each other smoothly\
+ROS is a essentially a software Lego set for building robotic systems. It provides ready-made tools and libraries to handle common tasks like controlling actuators, processing sensor data, or even communicating with other robots\
 In short, ROS is the software glue that connects all the hardware and software pieces of a robot, making it easier to build, program, and control robots.
 - **Understand the basic tools** ROS2 provides with [Beginner: CLI Tools](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools.html) section
 
 ## Gazebo Simulation
 
-- WIP
+- WIP future
