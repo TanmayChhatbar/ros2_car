@@ -44,13 +44,26 @@ Read this [section](#understanding-ros) if the question - "Why ROS?"
   - Clone forked repository on computer (clone this repo if you haven't forked)
 - Enable camera support
   - Build libcamera and rpicam-apps from source following this [guide](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera)
+    - (optional) When building rpicam-apps, enable libav support to allow capturing video
     - libcamera that comes with apt does not detect Pi Camera on Ubuntu\
     Hence, these libraries must be built from the [fork](https://github.com/raspberrypi/libcamera) developed by raspberrypi
-  - (TODO) Install [libcamera camera support for ROS2](https://github.com/christianrauch/camera_ros) on Pi
-    - WIP because installation using ```sudo apt install ros-$ROS_DISTRO-camera-ros``` breaks the libcamera/rpicam-apps\
-    ```libcamera-hello``` no longer is able to find a camera\
-    bruteforce resolution is to uninstall ros-$ROS_DISTRO-camera-ros using ```sudo apt remove --purge --autoremove ros-$ROS_DISTRO-camera-ros```\
-    but while this allows the originally built libcamera library to detect the camera, ROS support is gone
+  - Install [libcamera support for ROS2](https://github.com/christianrauch/camera_ros) on Pi
+    - (Note) Installation using ```sudo apt install ros-$ROS_DISTRO-camera-ros``` breaks the libcamera/rpicam-apps\
+    ```libcamera-hello``` no longer is able to find a camera
+    - Follow the *Build Instructions - Source* to enable camera support for ROS2.
+    - To start the camera stream, use the command\
+    ```ros2 run camera_ros camera_node```
+    - To visualize the camera stream, use the command\
+    ```ros2 run rqt_image_view rqt_image_view```\
+    If the image is inverted, use the command\
+    ```ros2 run camera_ros camera_node --ros-args -p orientation:=180```\
+    To set resolution, use the command\
+    ```ros2 run camera_ros camera_node --ros-args -p orientation:=180 -p width:=800 -p height:=600```
+    - To get better frame rate on the stream, use /camera/image_raw/compressed node
+    - If you face issues getting the /image/compressed working, you may need to install *image-transport-plugins* using\
+    ```apt install ros-$ROS_DISTRO-image-transport-plugins```
+    - TODO some warnings on launching the camera node, related to calibration file and autofocus. Ignoring for now
+    ![camera_ros warnings](README_media/camera_ros%20-%20warnings.png)
 
 ## ROS2 Installation verification
 
