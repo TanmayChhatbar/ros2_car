@@ -11,6 +11,7 @@ int main()
 {
     // default configuration
     Vehicle vehicle = Vehicle();
+    exportVehicleConfig(vehicle.getVehicleConfig());
 
     // prepare output CSV file
     std::string filename = "vehicle_sim_test.csv";
@@ -28,23 +29,35 @@ int main()
     int step_count = 0;
 
     std::cout << "Running test..." << std::endl;
-    double throttle_input = 0.0; // [-1 to 1]
-    double steering_input = 0.0; // [-1 to 1]
-    double dt = 0.001;           // [s]
-    double tmax = 20.0;          // [s]
-    double freq_steer = 0.5;     // frequency of steering oscillation
+    double throttle_input = 0.0;    // [-1 to 1]
+    double steering_input = 0.0;    // [-1 to 1]
+    double brake_input = 1.0;       // [0 to 1]
 
+    double max_steering_input = 0.1;
+    double dt = 0.0001;             // [s]
+    double tmax = 20.0;             // [s]
+    double freq_steer = 0.1;        // frequency of steering oscillation
+    double t_start = 1;
+    double f_log = 100;             // [hz] log frequency
     for (int step = 0; step < (int)(tmax / dt); step++)
     {
-        // calculate inputs based on current time
-        steering_input = std::sin(freq_steer * current_time / 2 / M_PI);
-        throttle_input = 1.0; // constant throttle
+        // calculate inputs based on current times
+        if (current_time > t_start && current_time < t_start + 2 / freq_steer)
+        {
+            steering_input = max_steering_input * std::sin(freq_steer * (current_time - t_start) * 2 * M_PI);
+        }
+        else
+        {
+            steering_input = 0.0;
+        }
+        // steering_input = 0.0;
+        throttle_input = 0.0; // constant throttle
 
         // set inputs and step simulation
-        vehicle.stepSimulation(dt, steering_input, throttle_input);
+        vehicle.stepSimulation(dt, steering_input, throttle_input, brake_input);
 
-        // output data every 10 steps (reduces file size)
-        if (step_count % 10 == 0)
+        // output data
+        if (step_count % (int)(1/(f_log*dt)) == 0)
         {
             writeCSVData(output_file, current_time, vehicle.getVehicleData(), vehicle.getVehicleInput());
         }
