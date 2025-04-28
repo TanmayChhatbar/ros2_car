@@ -1,4 +1,4 @@
-#include "vehicle_2d.hpp"
+#include "Vehicle2D.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -13,7 +13,7 @@ void writeCSVHeader(std::ofstream &file)
           << "steering,motor_torque" << std::endl;
 }
 
-void writeCSVData(std::ofstream &file, double time, const VehicleData &data,
+void writeCSVData(std::ofstream &file, double time, const Vehicle2DData &data,
                   const VehicleInput &input)
 {
      double X, Y, yaw;
@@ -43,9 +43,9 @@ void writeCSVData(std::ofstream &file, double time, const VehicleData &data,
           << steering_angle << "," << motor_torque << std::endl;
 }
 
-void exportVehicleConfig(const VehicleConfig &VehicleConfig)
+void exportVehicle2DConfig(Vehicle2DConfig &Vehicle2DConfig, std::string filename)
 {
-     std::ofstream config_file("vehicle_config_test.csv");
+     std::ofstream config_file(filename);
      if (!config_file.is_open())
      {
           std::cerr << "Failed to open file: vehicle_config.csv" << std::endl;
@@ -55,19 +55,19 @@ void exportVehicleConfig(const VehicleConfig &VehicleConfig)
      config_file << "wheelbase_m, track_width_m, steer_max_rad, mass_kg, Izz_kgm2, z_cg_m, a_m, r_wheel_m, I_wheel_kgm2, Tmax_Nm, diff_damping_Ns/m,"
                  << "tire_B, tire_C, tire_D, tire_E, tire_f" << std::endl;
      double B, C, D, E, f;
-     VehicleConfig.getTireConfig().getTireConfig(B, C, D, E, f);
+     Vehicle2DConfig.getTireConfig().getTireParams(B, C, D, E, f);
 
-     config_file << VehicleConfig.getWheelbase() << ","
-                 << VehicleConfig.getTrackWidth() << ","
-                 << VehicleConfig.getSteerMax() << ","
-                 << VehicleConfig.getMass() << ","
-                 << VehicleConfig.getIzz() << ","
-                 << VehicleConfig.getZcg() << ","
-                 << VehicleConfig.getA() << ","
-                 << VehicleConfig.getWheelRadius() << ","
-                 << VehicleConfig.getI_wheel() << ","
-                 << VehicleConfig.getTmax() << ","
-                 << VehicleConfig.getDiffDamping() << ","
+     config_file << Vehicle2DConfig.getWheelbase() << ","
+                 << Vehicle2DConfig.getTrackWidth() << ","
+                 << Vehicle2DConfig.getSteerMax() << ","
+                 << Vehicle2DConfig.getMass() << ","
+                 << Vehicle2DConfig.getIzz() << ","
+                 << Vehicle2DConfig.getZcg() << ","
+                 << Vehicle2DConfig.getA() << ","
+                 << Vehicle2DConfig.getWheelRadius() << ","
+                 << Vehicle2DConfig.getI_wheel() << ","
+                 << Vehicle2DConfig.getTmax() << ","
+                 << Vehicle2DConfig.getDiffDamping() << ","
                  << B << ","
                  << C << ","
                  << D << ","

@@ -1,8 +1,8 @@
 clear
-filename = "../src/vehicle_sim_test.csv";
+filename = "../src/build/vehicle_sim_test.csv";
 ds = loadcsv(filename);
 
-% config = loadcsv("../src/vehicle_config_test.csv");
+% config = loadcsv("../src/build/vehicle_config_test.csv");
 
 figure(1);
 clf
@@ -26,11 +26,11 @@ endfor
 hold off
 
 s(1) = subplot(3,3,2);
-plot(ds.time, ds.vx, "DisplayName", "v_x")
+plot(ds.time, ds.vx * 3.6, "DisplayName", "v_x")
 hold on
-plot(ds.time, ds.vy, "DisplayName", "v_y")
+plot(ds.time, ds.vy * 3.6, "DisplayName", "v_y")
 xlabel("Time (s)")
-ylabel("v (m/s)")
+ylabel("v (kph)")
 legend("show")
 grid on
 
