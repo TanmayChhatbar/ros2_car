@@ -9,17 +9,19 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
 
 add_executable(
         vehicle_sim_node src/vehicle_sim_node.cpp
         src/include/Vehicle2DData.cpp
-        src/include/Vehicle2DConfig.cpp
         src/include/TireConfig.cpp
         src/include/VehicleInput.cpp
+        src/include/Vehicle2DConfig.cpp
         src/include/Vehicle2D.cpp
 )
 
-ament_target_dependencies(vehicle_sim_node rclcpp sensor_msgs)
+ament_target_dependencies(vehicle_sim_node rclcpp sensor_msgs tf2)
 target_include_directories(vehicle_sim_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>
