@@ -1,6 +1,6 @@
 # ELI5 README (WIP)
 
-## Installation ([Ubuntu 24.04](https://releases.ubuntu.com/noble/)
+## Installation ([Ubuntu 24.04](https://releases.ubuntu.com/noble/))
 
 - On desktop
   - Download ISO from the [official website](https://ubuntu.com/download/desktop)
@@ -20,7 +20,7 @@
     allows you to connect to the Pi over SSH from the get-go, with no further setup required. Else you will need to connect the Pi to a monitor and setup
   - Flash to Micro SD card using Imager
 
-## Installation (Software)
+## Software Installation
 
 - Install [Git](https://git-scm.com/downloads/linux)\
 Git is essential for repository management and version control
@@ -39,31 +39,7 @@ Read this [section](#understanding-ros) if the question - "Why ROS?"
     - Install [colcon](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html)
     - Install [rosdep](https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Rosdep.html)
     - Initialize rosdep by running ```rosdep``` and following the commands
-- Setup repository
-  - Fork this repository on Github (optional, but recommended if you intend to customize your project and track changes using Git on GitHub)
-  - Clone forked repository on computer (clone this repo if you haven't forked)
-- Enable camera support
-  - Build libcamera and rpicam-apps from source following this [guide](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera)
-    - (optional) When building rpicam-apps, enable libav support to allow capturing video
-    - libcamera that comes with apt does not detect Pi Camera on Ubuntu\
-    Hence, these libraries must be built from the [fork](https://github.com/raspberrypi/libcamera) developed by raspberrypi
-  - Install [libcamera support for ROS2](https://github.com/christianrauch/camera_ros) on Pi
-    - (Note) Installation using ```sudo apt install ros-$ROS_DISTRO-camera-ros``` breaks the libcamera/rpicam-apps\
-    ```libcamera-hello``` no longer is able to find a camera
-    - Follow the *Build Instructions - Source* to enable camera support for ROS2.
-    - To start the camera stream, use the command\
-    ```ros2 run camera_ros camera_node```
-    - To visualize the camera stream, use the command\
-    ```ros2 run rqt_image_view rqt_image_view```\
-    If the image is inverted, use the command\
-    ```ros2 run camera_ros camera_node --ros-args -p orientation:=180```\
-    To set resolution, use the command\
-    ```ros2 run camera_ros camera_node --ros-args -p orientation:=180 -p width:=800 -p height:=600```
-    - To get better frame rate on the stream, use /camera/image_raw/compressed node
-    - If you face issues getting the /image/compressed working, you may need to install *image-transport-plugins* using\
-    ```apt install ros-$ROS_DISTRO-image-transport-plugins```
-    - TODO some warnings on launching the camera node, related to calibration file and autofocus. Ignoring for now
-    ![camera_ros warnings](README_media/camera_ros%20-%20warnings.png)
+    - [Verify ROS2 installation](#ros2-installation-verification)
 
 ## ROS2 Installation verification
 
@@ -73,9 +49,46 @@ Read this [section](#understanding-ros) if the question - "Why ROS?"
   ![Demo Nodes Talker on Desktop](README_media/demo_nodes_cpp_talker_on_Pi.png)
   ![Demo Nodes Listener on Pi](README_media/demo_nodes_cpp_listener_on_desktop.png)
 
+## Camera Support
+
+- Build libcamera and rpicam-apps from source following this [guide](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera)
+  - (optional) When building rpicam-apps, enable libav support to allow capturing video
+  - libcamera that comes with apt does not detect Pi Camera on Ubuntu\
+  Hence, these libraries must be built from the [fork](https://github.com/raspberrypi/libcamera) developed by raspberrypi
+- Install [libcamera support for ROS2](https://github.com/christianrauch/camera_ros) on Pi
+  - (Note) Installation using ```sudo apt install ros-$ROS_DISTRO-camera-ros``` breaks the libcamera/rpicam-apps\
+  ```libcamera-hello``` no longer is able to find a camera
+  - Follow the *Build Instructions - Source* to enable camera support for ROS2.
+  - To start the camera stream, use the command\
+  ```ros2 run camera_ros camera_node```
+  - To visualize the camera stream, use the command\
+  ```ros2 run rqt_image_view rqt_image_view```\
+  If the image is inverted, use the command\
+  ```ros2 run camera_ros camera_node --ros-args -p orientation:=180```\
+  To set resolution, use the command\
+  ```ros2 run camera_ros camera_node --ros-args -p orientation:=180 -p width:=800 -p height:=600```
+  - To get better frame rate on the stream, use /camera/image_raw/compressed node
+  - If you face issues getting the /image/compressed working, you may need to install *image-transport-plugins* using\
+  ```apt install ros-$ROS_DISTRO-image-transport-plugins```
+  - TODO some warnings on launching the camera node, related to calibration file and autofocus. Ignoring for now
+  ![camera_ros warnings](README_media/camera_ros%20-%20warnings.png)
+
+## Joystick Support
+
+- Clone [joystick_drivers](https://github.com/ros-drivers/joystick_drivers) repository into a new ROS2 workspace
+- Build the *joy* package using ```colcon build --packages-select joy```
+- Connect joystick to the computer
+- Run the *joy_node* node using ```ros2 run joy joy_node```
+- Verify that the buttons and axes messages respond to user input (tested on Xbox One Wireless controller connected with Bluetooth)
+
+## Installation (Repository)
+
+- Fork this repository on Github (optional, but recommended if you intend to customize your project and track changes using Git on GitHub)
+- Clone forked repository on computer (clone this repo if you haven't forked)
+
 ## Understanding ROS
 
-- **What is ROS?**\
+- **What is ROS?**
 Imagine you have a robot made of different parts - sensors to see, motors to move, and maybe even a camera to record\
 Each part may speak its own "language". ROS helps them all talk to each other smoothly\
 ROS is a essentially a software Lego set for building robotic systems. It provides ready-made tools and libraries to handle common tasks like controlling actuators, processing sensor data, or even communicating with other robots\
