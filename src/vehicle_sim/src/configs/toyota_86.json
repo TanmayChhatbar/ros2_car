@@ -18,6 +18,7 @@
   "brake_bias": 0.55,
   "diff_damping": 10.0,
   "CDx": 0.3,
+  "CMz": 0.0,
   "Af": 2.38125,
   "rho": 1.225,
   "tire_config": {

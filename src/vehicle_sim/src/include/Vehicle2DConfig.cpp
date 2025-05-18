@@ -11,19 +11,19 @@ Vehicle2DConfig::Vehicle2DConfig()
       Tmax(205), Tnegmax(250.0), Pmax(152e3), Pnegmax(100e3), gear_ratio(3.626 * 4.1),
       brake_Tmax(2e4), brake_bias(0.55),
       diff_damping(10.0), tire_config(),
-      CDx(0.3), Af(1.775 * (1.425 - 0.1)), rho(1.225) {} // Toyota 86 (https://en.wikipedia.org/wiki/Toyota_86)
+      CDx(0.3), CMz(0.0), Af(1.775 * (1.425 - 0.1)), rho(1.225) {} // Toyota 86 (https://en.wikipedia.org/wiki/Toyota_86)
 Vehicle2DConfig::Vehicle2DConfig(double wheelbase_, double track_width_, double steer_max_,
                                  double mass_, double Izz_, double z_cg_, double a_, double r_wheel_, double I_wheel_,
                                  double Tmax_, double Tnegmax_, double Pmax_, double Pnegmax_, double gear_ratio_,
                                  double brake_Tmax_, double brake_bias_,
                                  double diff_damping_, TireConfig tire_config_,
-                                 double CDx_, double Af_, double rho_)
+                                 double CDx_, double CMz_, double Af_, double rho_)
     : wheelbase(wheelbase_), track_width(track_width_), steer_max(steer_max_),
       mass(mass_), Izz(Izz_), z_cg(z_cg_), a(a_), r_wheel(r_wheel_), I_wheel(I_wheel_),
       Tmax(Tmax_), Tnegmax(Tnegmax_), Pmax(Pmax_), Pnegmax(Pnegmax_), gear_ratio(gear_ratio_),
       brake_Tmax(brake_Tmax_), brake_bias(brake_bias_),
       diff_damping(diff_damping_), tire_config(tire_config_),
-      CDx(CDx_), Af(Af_), rho(rho_) {}
+      CDx(CDx_), CMz(CMz_), Af(Af_), rho(rho_) {}
 
 double Vehicle2DConfig::getMass() const { return mass; }
 double Vehicle2DConfig::getIzz() const { return Izz; }
@@ -96,6 +96,7 @@ Vehicle2DConfig Vehicle2DConfig::loadFromFile(const std::string& filename) {
           vehicle.value("diff_damping", 10.0),
           tire_config,
           vehicle.value("CDx", 0.3),
+          vehicle.value("CMz", 0.0),
           vehicle.value("Af", 1.775 * (1.425 - 0.1)),
           vehicle.value("rho", 1.225)
       );

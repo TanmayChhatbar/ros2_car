@@ -13,7 +13,7 @@ public:
                     double Tmax_, double Tnegmax_, double Pmax_, double Pnegmax_, double gear_ratio_,
                     double brake_Tmax_, double brake_bias_,
                     double diff_damping_, TireConfig tire_config_,
-                    double CDx_, double Af_, double rho_);
+                    double CDx_, double CMz_, double Af_, double rho_);
 
     static Vehicle2DConfig loadFromFile(const std::string &filename);
 
@@ -54,15 +54,15 @@ private:
     double Tnegmax;
     double Pmax;
     double Pnegmax;
+    double gear_ratio;
     double brake_Tmax;
     double brake_bias;
     double diff_damping;
-    double gear_ratio;
+    TireConfig tire_config;
     double CDx;
     double CMz;
     double Af;
     double rho;
-    TireConfig tire_config;
 
     friend class Vehicle2D;
 };

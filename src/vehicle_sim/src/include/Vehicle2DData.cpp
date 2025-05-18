@@ -4,6 +4,7 @@ Vehicle2DData::Vehicle2DData()
     : X(0.0), Y(0.0), yaw(0.0),
       vx(0.0), vy(0.0), w_yaw(0.0),
       ax(0.0), ay(0.0), a_yaw(0.0),
+      p_wheel{0.0, 0.0, 0.0, 0.0},
       w_wheel{0.0, 0.0, 0.0, 0.0},
       a_wheel{0.0, 0.0, 0.0, 0.0},
       Fx(0.0), Fy(0.0), Mz(0.0),
@@ -88,6 +89,20 @@ void Vehicle2DData::setWheelVelocities(const double w_wheel_[4])
     w_wheel[1] = w_wheel_[1];
     w_wheel[2] = w_wheel_[2];
     w_wheel[3] = w_wheel_[3];
+}
+void Vehicle2DData::getWheelRotations(double (&p_wheel_)[4]) const
+{
+    p_wheel_[0] = p_wheel[0];
+    p_wheel_[1] = p_wheel[1];
+    p_wheel_[2] = p_wheel[2];
+    p_wheel_[3] = p_wheel[3];
+}
+void Vehicle2DData::setWheelRotations(const double p_wheel_[4])
+{
+    p_wheel[0] = p_wheel_[0];
+    p_wheel[1] = p_wheel_[1];
+    p_wheel[2] = p_wheel_[2];
+    p_wheel[3] = p_wheel_[3];
 }
 
 // getters and setters for accelerations

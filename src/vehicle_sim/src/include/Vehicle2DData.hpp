@@ -26,6 +26,8 @@ public:
     void setWheelVelocities(const double w_wheel_fl_, const double w_wheel_fr_, const double w_wheel_rl_, const double w_wheel_rr_);
     void getWheelVelocities(double (&w_wheel_)[4]) const;
     void setWheelVelocities(const double w_wheel_[4]);
+    void getWheelRotations(double (&p_wheel_)[4]) const;
+    void setWheelRotations(const double p_wheel_[4]);
 
     void getLinearAccelerations(double &ax_, double &ay_) const;
     void setLinearAccelerations(const double ax_, const double ay_);
@@ -50,6 +52,7 @@ private:
     double vx, vy, w_yaw; // vehicle frame velocities
     double ax, ay, a_yaw; // vehicle frame accelerations
 
+    double p_wheel[4];
     double w_wheel[4];
     double a_wheel[4];
 

@@ -62,7 +62,7 @@ void Vehicle2D::calcTractionTorquesRWD()
     const double diff_damping = config.getDiffDamping();
     const double motor_torque = data.getMotorTorque();
 
-    const double dw_wheel_front = w_wheel[0] - w_wheel[1]; // left - right
+    // const double dw_wheel_front = w_wheel[0] - w_wheel[1]; // left - right
     const double dw_wheel_rear = w_wheel[2] - w_wheel[3];
     const double damping_rear = diff_damping * dw_wheel_rear;
     double gear_ratio = config.getGearRatio();
@@ -354,11 +354,17 @@ void Vehicle2D::calcNewState(double dt) // update vehicle state (X, Y, yaw, vx, 
     // calculate new wheel velocities
     double w_wheel[4];
     double a_wheel[4];
+    double p_wheel[4];
     data.getWheelVelocities(w_wheel);
     data.getWheelAccelerations(a_wheel);
+    data.getWheelRotations(p_wheel);
     for (int i = 0; i < 4; ++i)
     {
         w_wheel[i] += a_wheel[i] * dt;
+    }
+    for (int i = 0; i < 4; ++i)
+    {
+        p_wheel[i] += w_wheel[i] * dt + 0.5 * a_wheel[i] * dt * dt;
     }
 
     // set
@@ -367,6 +373,7 @@ void Vehicle2D::calcNewState(double dt) // update vehicle state (X, Y, yaw, vx, 
     data.setLinearVelocities(vx, vy);
     data.setAngularVelocities(w_yaw);
     data.setWheelVelocities(w_wheel);
+    data.setWheelRotations(p_wheel);
 }
 
 bool Vehicle2D::stepSimulation(double dt, double steering_input, double throttle_input, double brake_input)
