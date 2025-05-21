@@ -4,8 +4,9 @@
 #include "Vehicle2DData.hpp"
 #include "Vehicle2DConfig.hpp"
 #include "VehicleInput.hpp"
-
 #include <cmath> // for std::cos, std::sin, std::atan2, std::sqrt
+
+#define RAD2DEG(x) ((x) * 180.0 / M_PI)
 
 class Vehicle2D
 {
@@ -17,6 +18,7 @@ public:
     void calcMotorTorque();
     void calcBrakeTorque();
     void calcSteeringAngle();
+    void calcTractionTorquesFWD();
     void calcTractionTorquesRWD();
     void calcTractionTorquesAWD();
     void calcWheelSlipsAndForces();

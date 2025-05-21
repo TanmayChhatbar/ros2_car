@@ -3,6 +3,13 @@
 #include "Vehicle2DData.hpp"
 #include "TireConfig.hpp"
 #include <string>
+
+enum DrivetrainType_E {
+    RWD = 0,
+    AWD = 1,
+    FWD = 2
+};
+
 class Vehicle2DConfig // vehicle parameter configuration
 {
 public:
@@ -12,7 +19,7 @@ public:
                     double z_cg_, double a_, double r_wheel_, double I_wheel_,
                     double Tmax_, double Tnegmax_, double Pmax_, double Pnegmax_, double gear_ratio_,
                     double brake_Tmax_, double brake_bias_,
-                    double diff_damping_, TireConfig tire_config_,
+                    DrivetrainType_E drivetrain_type_, double diff_damping_, TireConfig tire_config_,
                     double CDx_, double CMz_, double Af_, double rho_);
 
     static Vehicle2DConfig loadFromFile(const std::string &filename);
@@ -31,6 +38,7 @@ public:
     double getPnegmax() const;
     double getBrakeTmax() const;
     double getBrakeBias() const;
+    DrivetrainType_E getDrivetrainType() const;
     double getDiffDamping() const;
     double getI_wheel() const;
     double getGearRatio() const;
@@ -57,6 +65,7 @@ private:
     double gear_ratio;
     double brake_Tmax;
     double brake_bias;
+    DrivetrainType_E drivetrain_type;
     double diff_damping;
     TireConfig tire_config;
     double CDx;

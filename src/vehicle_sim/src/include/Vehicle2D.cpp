@@ -15,7 +15,7 @@ void Vehicle2D::calcMotorTorque()
     // power limit
     double one_over_abs_motor_speed = 1 / std::abs((data.w_wheel[2] + data.w_wheel[3]) * config.getGearRatio());
     double T_Pmax = config.getPmax() * one_over_abs_motor_speed;
-    double T_Pnegmax = std::abs(config.getPnegmax()) * one_over_abs_motor_speed;
+    double T_Pnegmax = config.getPnegmax() * one_over_abs_motor_speed;
 
     // handle negative throttle
     if (input.throttle_input < 0.0)
@@ -55,23 +55,51 @@ void Vehicle2D::calcSteeringAngle()
 
 void Vehicle2D::calcTractionTorquesRWD()
 {
+    // get data
     double w_wheel[4];
     data.getWheelVelocities(w_wheel);
     double brake_torque[4];
     data.getBrakeTorque(brake_torque);
     const double diff_damping = config.getDiffDamping();
     const double motor_torque = data.getMotorTorque();
-
-    // const double dw_wheel_front = w_wheel[0] - w_wheel[1]; // left - right
-    const double dw_wheel_rear = w_wheel[2] - w_wheel[3];
-    const double damping_rear = diff_damping * dw_wheel_rear;
     double gear_ratio = config.getGearRatio();
+
+    // calculate common torques
+    const double net_wheel_torque = motor_torque * gear_ratio / 2.0;
+    const double damping_torque_rear = diff_damping * (w_wheel[2] - w_wheel[3]);
 
     // Calculate wheel torques with viscous damping
     double wheel_torques[4] = {0.0, 0.0, 0.0, 0.0};
-    double net_wheel_torque = motor_torque * gear_ratio / 2.0;
-    wheel_torques[2] = net_wheel_torque - damping_rear;
-    wheel_torques[3] = net_wheel_torque + damping_rear;
+    wheel_torques[2] = net_wheel_torque - damping_torque_rear;
+    wheel_torques[3] = net_wheel_torque + damping_torque_rear;
+
+    // subtract brake torque from wheel torques
+    for (int i = 0; i < 4; ++i)
+    {
+        wheel_torques[i] -= brake_torque[i];
+    }
+    data.setWheelTorques(wheel_torques);
+}
+
+void Vehicle2D::calcTractionTorquesFWD()
+{
+    // get data
+    double w_wheel[4];
+    data.getWheelVelocities(w_wheel);
+    double brake_torque[4];
+    data.getBrakeTorque(brake_torque);
+    const double diff_damping = config.getDiffDamping();
+    const double motor_torque = data.getMotorTorque();
+    double gear_ratio = config.getGearRatio();
+
+    // calculate common torques
+    const double net_wheel_torque = motor_torque * gear_ratio / 2.0;
+    const double damping_torque_front = diff_damping * (w_wheel[0] - w_wheel[1]);
+
+    // Calculate wheel torques with viscous damping
+    double wheel_torques[4] = {0.0, 0.0, 0.0, 0.0};
+    wheel_torques[0] = net_wheel_torque - damping_torque_front;
+    wheel_torques[1] = net_wheel_torque + damping_torque_front;
 
     // subtract brake torque from wheel torques
     for (int i = 0; i < 4; ++i)
@@ -83,21 +111,34 @@ void Vehicle2D::calcTractionTorquesRWD()
 
 void Vehicle2D::calcTractionTorquesAWD()
 {
+    // get data
     double w_wheel[4];
     data.getWheelVelocities(w_wheel);
+    double brake_torque[4];
+    data.getBrakeTorque(brake_torque);
     const double diff_damping = config.getDiffDamping();
     const double motor_torque = data.getMotorTorque();
-    const double dw_wheel_front = w_wheel[0] - w_wheel[1]; // left - right
-    const double dw_wheel_rear = w_wheel[2] - w_wheel[3];
-    const double damping_front = diff_damping * dw_wheel_front;
-    const double damping_rear = diff_damping * dw_wheel_rear;
+    double gear_ratio = config.getGearRatio();
+
+    // calculate common torques
+    const double net_wheel_torque = motor_torque * gear_ratio / 4.0;
+    const double damping_torque_front = diff_damping * (w_wheel[0] - w_wheel[1]); // damping between front wheels
+    const double damping_torque_rear = diff_damping * (w_wheel[2] - w_wheel[3]);  // damping between rear wheels
+    const double damping_torque_fr = diff_damping *
+                                     (w_wheel[0] + w_wheel[1] - w_wheel[2] - w_wheel[3]) / 4.0 * 0.0; // damping between front and rear wheels
 
     // Calculate wheel torques with viscous damping
-    double wheel_torques[4];
-    wheel_torques[0] = motor_torque / 4.0 - damping_front;
-    wheel_torques[1] = motor_torque / 4.0 + damping_front;
-    wheel_torques[2] = motor_torque / 4.0 - damping_rear;
-    wheel_torques[3] = motor_torque / 4.0 + damping_rear;
+    double wheel_torques[4] = {0.0, 0.0, 0.0, 0.0};
+    wheel_torques[0] = net_wheel_torque - damping_torque_front - damping_torque_fr;
+    wheel_torques[1] = net_wheel_torque + damping_torque_front - damping_torque_fr;
+    wheel_torques[2] = net_wheel_torque - damping_torque_rear + damping_torque_fr;
+    wheel_torques[3] = net_wheel_torque + damping_torque_rear + damping_torque_fr;
+
+    // subtract brake torque from wheel torques
+    for (int i = 0; i < 4; ++i)
+    {
+        wheel_torques[i] -= brake_torque[i];
+    }
     data.setWheelTorques(wheel_torques);
 }
 
@@ -203,6 +244,7 @@ void Vehicle2D::calcWheelSlipsAndForces()
     slip_angle[2] = std::atan2(vyw[2], vxw[2]); // rear left
     slip_angle[3] = std::atan2(vyw[3], vxw[3]); // rear right
 
+    // calculate tire forces
     double Fx_wheel[4];
     double Fy_wheel[4];
     const double slip_threshold = 0.5; // threshold for slip ratio
@@ -213,7 +255,7 @@ void Vehicle2D::calcWheelSlipsAndForces()
         slip_ratio[i] = (w_wheel[i] * r_wheel - vxw[i]) / denominator;
 
         // calculate tire forces
-        config.getTireConfig().calcTireForces(slip_angle[i] * 180.0 / M_PI, slip_ratio[i], w_wheel[i], Fz_wheel[i], Fx_wheel[i], Fy_wheel[i]);
+        config.getTireConfig().calcTireForces(RAD2DEG(slip_angle[i]), slip_ratio[i], w_wheel[i], Fz_wheel[i], Fx_wheel[i], Fy_wheel[i]);
     }
     data.setWheelForces(Fx_wheel, Fy_wheel);
 }
@@ -384,7 +426,18 @@ bool Vehicle2D::stepSimulation(double dt, double steering_input, double throttle
     calcSteeringAngle();
     calcMotorTorque();
     calcBrakeTorque();
-    calcTractionTorquesRWD();
+    if (config.getDrivetrainType() == RWD)
+    {
+        calcTractionTorquesRWD();
+    }
+    else if (config.getDrivetrainType() == FWD)
+    {
+        calcTractionTorquesFWD();
+    }
+    else if (config.getDrivetrainType() == AWD)
+    {
+        calcTractionTorquesAWD();
+    }
     calcTireNormalLoads();
     calcWheelSlipsAndForces();
     calcNetForcesAndMoments();
