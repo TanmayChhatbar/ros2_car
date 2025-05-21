@@ -71,7 +71,8 @@ Vehicle2DConfig Vehicle2DConfig::loadFromFile(const std::string& filename) {
               tc.value("D", 1.0),
               tc.value("E", 0.8),
               tc.value("f", 100.0),
-              tc.value("coeff_rr", 0.008)
+              tc.value("coeff_rr", 0.03),
+              tc.value("coeff_stiction", 0.008)
           );
       }
       
