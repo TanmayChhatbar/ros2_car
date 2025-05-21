@@ -32,7 +32,7 @@ int main()
     // simulation parameters
     double max_steering_input = 0.1;
     double dt = 0.0001;      // [s]
-    double tmax = 20.0;      // [s]
+    double tmax = 2000.0;      // [s]
     double freq_steer = 0.1; // frequency of steering oscillation
     double t_start = 1;
     double f_log = 100;      // [hz] log frequency
