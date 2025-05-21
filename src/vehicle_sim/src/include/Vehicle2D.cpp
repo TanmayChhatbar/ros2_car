@@ -9,21 +9,27 @@ Vehicle2D::Vehicle2D(const Vehicle2DData &data_, const Vehicle2DConfig &config_,
 
 void Vehicle2D::calcMotorTorque()
 {
-    double Tmax = config.getTmax();
-    double Tnegmax = config.getTnegmax();
+    const double Tmax = config.getTmax();
+    const double Tnegmax = config.getTnegmax();
+    const double Tzero = config.getTzero();
+    const double motor_speed = (data.w_wheel[2] + data.w_wheel[3]) / 2.0 * config.getGearRatio();
 
     // power limit
-    double one_over_abs_motor_speed = 1 / std::abs((data.w_wheel[2] + data.w_wheel[3]) * config.getGearRatio());
-    double T_Pmax = config.getPmax() * one_over_abs_motor_speed;
-    double T_Pnegmax = config.getPnegmax() * one_over_abs_motor_speed;
+    const double one_over_abs_motor_speed = 1 / std::abs(motor_speed);
+    const double T_Pmax = config.getPmax() * one_over_abs_motor_speed;
+    const double T_Pnegmax = config.getPnegmax() * one_over_abs_motor_speed;
 
     // handle negative throttle
-    if (input.throttle_input < 0.0)
+    double motor_torque = 0.0;
+    if (std::signbit(input.throttle_input) == std::signbit(motor_speed))
     {
-        data.setMotorTorque(input.throttle_input * std::min(Tnegmax, T_Pnegmax));
-        return;
+        motor_torque = input.throttle_input * (std::min(Tmax, T_Pmax) + Tzero) - std::copysign(Tzero, motor_speed);
     }
-    data.setMotorTorque(input.throttle_input * std::min(Tmax, T_Pmax));
+    else
+    {
+        motor_torque = input.throttle_input * (std::min(Tnegmax, T_Pnegmax) + Tzero) - std::copysign(Tzero, motor_speed);
+    }
+    data.setMotorTorque(motor_torque);
 }
 
 void Vehicle2D::calcBrakeTorque()

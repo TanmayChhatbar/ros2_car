@@ -10,6 +10,7 @@
   "r_wheel": 0.3125,
   "I_wheel": 2.0,
   "Tmax": 205.0,
+  "Tzero": 70.0,
   "Tnegmax": 70.0,
   "Pmax": 152000.0,
   "Pnegmax": 100000.0,

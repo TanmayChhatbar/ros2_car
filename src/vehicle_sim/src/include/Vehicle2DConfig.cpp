@@ -14,13 +14,13 @@ Vehicle2DConfig::Vehicle2DConfig()
       CDx(0.3), CMz(0.0), Af(1.775 * (1.425 - 0.1)), rho(1.225) {} // Toyota 86 (https://en.wikipedia.org/wiki/Toyota_86)
 Vehicle2DConfig::Vehicle2DConfig(double wheelbase_, double track_width_, double steer_max_,
                                  double mass_, double Izz_, double z_cg_, double a_, double r_wheel_, double I_wheel_,
-                                 double Tmax_, double Tnegmax_, double Pmax_, double Pnegmax_, double gear_ratio_,
+                                 double Tmax_, double Tzero_, double Tnegmax_, double Pmax_, double Pnegmax_, double gear_ratio_,
                                  double brake_Tmax_, double brake_bias_,
                                  DrivetrainType_E drivetrain_type_, double diff_damping_, TireConfig tire_config_,
                                  double CDx_, double CMz_, double Af_, double rho_)
     : wheelbase(wheelbase_), track_width(track_width_), steer_max(steer_max_),
       mass(mass_), Izz(Izz_), z_cg(z_cg_), a(a_), r_wheel(r_wheel_), I_wheel(I_wheel_),
-      Tmax(Tmax_), Tnegmax(Tnegmax_), Pmax(Pmax_), Pnegmax(Pnegmax_), gear_ratio(gear_ratio_),
+      Tmax(Tmax_), Tzero(Tzero_), Tnegmax(Tnegmax_), Pmax(Pmax_), Pnegmax(Pnegmax_), gear_ratio(gear_ratio_),
       brake_Tmax(brake_Tmax_), brake_bias(brake_bias_),
       drivetrain_type(drivetrain_type_), diff_damping(diff_damping_), tire_config(tire_config_),
       CDx(CDx_), CMz(CMz_), Af(Af_), rho(rho_) {}
@@ -35,6 +35,7 @@ double Vehicle2DConfig::getA() const { return a; }
 double Vehicle2DConfig::getWheelRadius() const { return r_wheel; }
 double Vehicle2DConfig::getTmax() const { return Tmax; }
 double Vehicle2DConfig::getTnegmax() const { return Tnegmax; }
+double Vehicle2DConfig::getTzero() const { return Tzero; }
 double Vehicle2DConfig::getPmax() const { return Pmax; }
 double Vehicle2DConfig::getPnegmax() const { return Pnegmax; }
 double Vehicle2DConfig::getBrakeTmax() const { return brake_Tmax; }
@@ -89,6 +90,7 @@ Vehicle2DConfig Vehicle2DConfig::loadFromFile(const std::string& filename) {
           vehicle.value("r_wheel", 0.3125),
           vehicle.value("I_wheel", 2.0),
           vehicle.value("Tmax", 205.0),
+          vehicle.value("Tzero", 30.0),
           vehicle.value("Tnegmax", 250.0),
           vehicle.value("Pmax", 152e3),
           vehicle.value("Pnegmax", 100e3),

@@ -4,7 +4,8 @@
 #include "TireConfig.hpp"
 #include <string>
 
-enum DrivetrainType_E {
+enum DrivetrainType_E
+{
     RWD = 0,
     AWD = 1,
     FWD = 2
@@ -17,7 +18,7 @@ public:
     Vehicle2DConfig(double wheelbase_, double track_width_, double steer_max_,
                     double mass_, double Izz_,
                     double z_cg_, double a_, double r_wheel_, double I_wheel_,
-                    double Tmax_, double Tnegmax_, double Pmax_, double Pnegmax_, double gear_ratio_,
+                    double Tmax_, double Tzero_, double Tnegmax_, double Pmax_, double Pnegmax_, double gear_ratio_,
                     double brake_Tmax_, double brake_bias_,
                     DrivetrainType_E drivetrain_type_, double diff_damping_, TireConfig tire_config_,
                     double CDx_, double CMz_, double Af_, double rho_);
@@ -33,6 +34,7 @@ public:
     double getA() const;
     double getWheelRadius() const;
     double getTmax() const;
+    double getTzero() const;
     double getTnegmax() const;
     double getPmax() const;
     double getPnegmax() const;
@@ -59,6 +61,7 @@ private:
     double r_wheel;
     double I_wheel;
     double Tmax;
+    double Tzero;
     double Tnegmax;
     double Pmax;
     double Pnegmax;
