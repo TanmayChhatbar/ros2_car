@@ -18,13 +18,14 @@ public:
 
 private:
     void calcGradients();
-    std::vector<double> Jacobian(std::vector<double> x_trial);
+    std::vector<double> Jacobian(const std::vector<double> x_trial);
     bool calcNextBestTrial();
     double score = 1.0e10;
     double threshold = 1e-2;                      // convergence threshold
-    double step_size = 0.1;                       // step size for gradient descent
-    double h = 1e-6;                              // step size for numerical gradient calculation
+    double step_size = 1.0;                       // step size for gradient descent
+    double h = 1e-8;                              // step size for numerical gradient calculation
     bool converged = false;                       // convergence flag
+    uint max_iters = 1000;                        // maximum number of iterations
     std::function<double(std::vector<double>)> f; // optimization function
     std::vector<double> x_trial;                  // trial point
     std::vector<double> lb;                       // lower bounds

@@ -2,6 +2,7 @@
 
 #define FORWARD_GRADIENT_ONLY 1
 #define USE_NORMALIZED_GRADIENTS 1
+#define USE_RK4 1
 
 OptSolver::OptSolver()
 {
@@ -26,6 +27,7 @@ void OptSolver::calcGradients()
 {
     // using RK4
     // k1
+#if USE_RK4
     std::vector<double> x_tmp = x_trial;
     std::vector<double> k1 = Jacobian(x_tmp);
     gradients.resize(x_trial.size());
@@ -57,18 +59,22 @@ void OptSolver::calcGradients()
     {
         gradients[i] = (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]) / 6.0;
     }
+#else
+    gradients = Jacobian(x_trial);
+#endif
 }
 
-std::vector<double> OptSolver::Jacobian(std::vector<double> x_trial)
+std::vector<double> OptSolver::Jacobian(const std::vector<double> x_trial)
 {
     double f_curr = f(x_trial);
+    std::vector<double> x_forward = x_trial;
     std::vector<double> J(x_trial.size());
     for (size_t i = 0; i < x_trial.size(); ++i)
     {
-        std::vector<double> x_forward = x_trial;
+        const double orig = x_forward[i];
         x_forward[i] += h;
-        double f_forward = f(x_forward);
-        J[i] = (f_forward - f_curr) / h;
+        J[i] = (f(x_forward) - f_curr) / h;
+        x_forward[i] = orig; // restore original value
     }
     return J;
 }
@@ -97,12 +103,12 @@ bool OptSolver::calcNextBestTrial()
     // normalize gradients
     for (size_t i = 0; i < gradients.size(); ++i)
     {
-        gradients[i] /= norm * step_size;
+        gradients[i] *= step_size / norm;
     }
 #else
     for (size_t i = 0; i < gradients.size(); ++i)
     {
-        gradients[i] = gradients[i] * step_size;
+        gradients[i] *= step_size;
     }
 #endif
 
@@ -125,7 +131,7 @@ bool OptSolver::solve()
     // optimize
     bool converged = false;
     uint n_iter = 0;
-    while (!converged && n_iter < 1000)
+    while (!converged && n_iter < max_iters)
     {
         // calculate score
         calcGradients();
@@ -139,7 +145,7 @@ bool OptSolver::solve()
         }
 
         n_iter++;
-        if (n_iter % 1 == 0)
+        if ((n_iter) % 1 == 0 || n_iter == 1)
         {
             std::cout << n_iter << "\t";
             std::cout << score << "\t";
