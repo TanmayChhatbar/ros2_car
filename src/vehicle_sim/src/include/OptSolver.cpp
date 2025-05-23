@@ -25,9 +25,9 @@ void OptSolver::setFunction(std::function<double(std::vector<double>)> f_)
 
 void OptSolver::calcGradients()
 {
+#if USE_RK4
     // using RK4
     // k1
-#if USE_RK4
     std::vector<double> x_tmp = x_trial;
     std::vector<double> k1 = Jacobian(x_tmp);
     gradients.resize(x_trial.size());
@@ -89,15 +89,16 @@ bool OptSolver::calcNextBestTrial()
         norm += gradients[i] * gradients[i];
     }
     norm = std::sqrt(norm);
-    if (norm < 100.0)
-    {
-        norm = 100.0;
-    }
-
     // if gradients very small, near a local optimum
     if (norm < threshold)
     {
         return true;
+    }
+
+    // limit norm to avoid too large step size
+    if (norm < 100.0)
+    {
+        norm = 100.0;
     }
 
     // normalize gradients
