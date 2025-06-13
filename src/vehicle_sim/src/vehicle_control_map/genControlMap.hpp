@@ -16,8 +16,8 @@
 #define USE_BRUTESOLVER (1 && !USE_NLOPT)
 
 #if USE_NLOPT
-// #define NLOPT_SOLVER GN_ISRES
-#define NLOPT_SOLVER GN_DIRECT_L_RAND    // works very well
+// #define NLOPT_SOLVER GN_DIRECT_L_RAND    // works very well
+#define NLOPT_SOLVER GN_ISRES
 // #define NLOPT_SOLVER GN_ORIG_DIRECT      //
 // #define NLOPT_SOLVER GN_DIRECT_NOSCAL    // doesn't work very well
 // #define NLOPT_SOLVER GN_CRS2_LM
@@ -41,7 +41,7 @@ void stabilizeWheelSpeeds(Vehicle2D &vehicle)
     // stabilize wheel speeds (to solve equilibrium for non-driven wheels)
     // get data
     Vehicle2DData &data = vehicle.getVehicle2DData();
-    Vehicle2DConfig &config = vehicle.getVehicle2DConfig();
+    const Vehicle2DConfig &config = vehicle.getVehicle2DConfig();
 
     // calculate approximate wheel speeds
     const double steering_angle = data.getSteeringAngle();
@@ -116,7 +116,7 @@ double cost_function(const std::vector<double> &x, std::vector<double> &grad, vo
     // load data
     Vehicle2D &vehicle = *static_cast<Vehicle2D *>(f_data);
     Vehicle2DData &data = vehicle.getVehicle2DData();
-    Vehicle2DConfig &config = vehicle.getVehicle2DConfig();
+    const Vehicle2DConfig &config = vehicle.getVehicle2DConfig();
 
     // get target data
     double vx_target, vy_target;
@@ -165,7 +165,7 @@ double cost_function(const std::vector<double> &x, std::vector<double> &grad, vo
     else
     {
         std::cerr << "Unknown drivetrain type!" << std::endl;
-        return 1e6;
+        return 1.0e5;
     }
     data.setWheelVelocities(w_wheel);
 
@@ -193,7 +193,7 @@ double cost_function(const std::vector<double> &x, std::vector<double> &grad, vo
     return score;
 }
 
-std::vector<std::vector<double>> combinations(std::vector<std::vector<double>> &values)
+std::vector<std::vector<double>> combinations(const std::vector<std::vector<double>> &values)
 {
     // values is a vector of vectors, where each inner vector contains lower bound, step size, upper bound for that dimension
     std::vector<std::vector<double>> trial_points;
@@ -234,9 +234,9 @@ double optimize(Vehicle2D &vehicle, double vx_target, double vy_target)
 {
     // get data and config from vehicle object
     Vehicle2DData &data = vehicle.getVehicle2DData();
-    Vehicle2DConfig &config = vehicle.getVehicle2DConfig();
+    const Vehicle2DConfig &config = vehicle.getVehicle2DConfig();
 
-    double max_yaw_rate = 5.0; // [rad/s] maximum yaw rate
+    const double max_yaw_rate = 5.0; // [rad/s] maximum yaw rate
     // double vx_front_target = vx_target;
     // double vy_front_target = vy_target + max_yaw_rate * config.getA();
     // double max_kinematic_steering_angle = std::atan2(vy_front_target, vx_front_target);
@@ -266,9 +266,9 @@ double optimize(Vehicle2D &vehicle, double vx_target, double vy_target)
     opt.set_min_objective(cost_function, &vehicle);
     opt.set_lower_bounds(lb);
     opt.set_upper_bounds(ub);
-    opt.set_xtol_rel(1e-16);
-    opt.set_ftol_abs(1e-16);
-    opt.set_stopval(1e-2);
+    opt.set_xtol_rel(1e-17);
+    opt.set_ftol_abs(1e-17);
+    opt.set_stopval(1e-3);
     opt.set_maxtime(15.0);
     std::vector<double> x = {wheel_speed_at_vx, 0.0, 0.0};
     double score = 1.0e5;
@@ -283,8 +283,9 @@ double optimize(Vehicle2D &vehicle, double vx_target, double vy_target)
         std::cout << "nlopt failed: " << e.what() << std::endl;
     }
 #elif USE_BRUTESOLVER
-    std::vector<uint> n_trials = {
-        80, 80, 80};
+    // const std::vector<uint> n_trials = {
+    //     1e2, 1e2, 1e2};
+    double n_trials = 120;
 
     // set up solver
     auto f = [&vehicle](const std::vector<double> &x)
@@ -297,8 +298,8 @@ double optimize(Vehicle2D &vehicle, double vx_target, double vy_target)
     solver.setBounds(lb, ub);
     solver.setNTrials(n_trials);
     solver.setNRefinements(50);
-    solver.setCostThreshold(1.0e-5);
-    solver.setReductionRatio(0.75);
+    solver.setCostThreshold(1.0e-4);
+    solver.setReductionRatio(0.4);
     solver.printOutput(false);
 
     // optimize
