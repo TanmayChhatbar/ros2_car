@@ -98,3 +98,21 @@ In short, ROS is the software glue that connects all the hardware and software p
 ## Gazebo Simulation
 
 - WIP future
+
+## Controller Setup
+ 
+- Turn on the controller and put it into pairing mode (small circular button on the top edge)
+- `sudo apt install bluez`
+- Run `sudo bluetoothctl`
+- In the bluetoothctl interface, run:
+  - `power on`
+  - `agent on`
+  - `pairable on`
+  - `scan on`
+      (wait a couple seconds for your Xbox controller to show up and take note of its ID)
+  - `scan off`
+  - `pair XX:XX:XX:XX:XX:XX`
+  - `trust XX:XX:XX:XX:XX:XX` (this will reconnect the controller automatically in the future)
+  - `connect XX:XX:XX:XX:XX:XX`
+  - quit
+
