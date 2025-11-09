@@ -95,6 +95,8 @@ ROS is a essentially a software Lego set for building robotic systems. It provid
 In short, ROS is the software glue that connects all the hardware and software pieces of a robot, making it easier to build, program, and control robots.
 - **Understand the basic tools** ROS2 provides with [Beginner: CLI Tools](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools.html) section
 
-## IMU Setup
+## IMU Setup (ICM-20948 thru I2C)
 
-- 
+- `sudo apt install i2c-tools`
+- Install icm20948 library in Python using `pip install icm20948`
+- Run `python icm20948_i2c_lib.py`
