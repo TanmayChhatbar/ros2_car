@@ -18,6 +18,7 @@ class ImuPublisher(Node):
         self.orientation = (0.0, 0.0, 0.0, 1.0)  # (x, y, z, w)
         self.angular_velocity = (0.0, 0.0, 0.0)  # (x, y, z)
         self.linear_acceleration = (0.0, 0.0, 9.81)  # (x, y, z)
+        self.angular_velocity_offsets = (2.064448, 0.098061, -0.202982)  # (x, y, z)
 
     def persistentInit(self):
         while True:
@@ -61,9 +62,9 @@ class ImuPublisher(Node):
         )
 
         msg.angular_velocity = Vector3(
-            x=self.angular_velocity[0],
-            y=self.angular_velocity[1],
-            z=self.angular_velocity[2]
+            x=self.angular_velocity[0]-self.angular_velocity_offsets[0],
+            y=self.angular_velocity[1]-self.angular_velocity_offsets[1],
+            z=self.angular_velocity[2]-self.angular_velocity_offsets[2]
         )
 
         msg.linear_acceleration = Vector3(
