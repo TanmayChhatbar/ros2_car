@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Quaternion, Vector3
+from std_msgs.msg import Header
+from icm20948 import ICM20948
+
+
+class ImuPublisher(Node):
+    def __init__(self):
+        super().__init__('imu_publisher')
+        self.publisher_ = self.create_publisher(Imu, 'imu/data', 10)
+        self.timer = self.create_timer(0.01, self.publish_imu)  # 100 Hz
+        self.get_logger().info("IMU publisher started.")
+        self.n_attempts = 0
+        self.imu = self.persistentInit()
+        self.orientation = (0.0, 0.0, 0.0, 1.0)  # (x, y, z, w)
+        self.angular_velocity = (0.0, 0.0, 0.0)  # (x, y, z)
+        self.linear_acceleration = (0.0, 0.0, 9.81)  # (x, y, z)
+
+    def persistentInit(self):
+        while True:
+            try:
+                imu = ICM20948()
+                print("IMU initialized after {:d} attempts".format(self.n_attempts))
+                self.n_attempts = 0
+                return imu
+            except:
+                self.n_attempts += 1
+                if self.n_attempts > 10:
+                    break
+                pass
+    
+    def read_imu_sensor(self):
+        try:
+            ax, ay, az, gx, gy, gz = self.imu.read_accelerometer_gyro_data()
+            self.orientation = (0.0, 0.0, 0.0, 1.0)  #TODO
+            self.angular_velocity = (gx, gy, gz)
+            self.linear_acceleration = (ax, ay, az)
+            return 0
+
+        except:
+            self.get_logger().error(f'IMU read error')
+            self.imu = self.persistentInit()
+            return 1
+            
+    def publish_imu(self):
+        if self.read_imu_sensor():
+            return
+        msg = Imu()
+        msg.header = Header()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = 'imu_link'
+
+        msg.orientation = Quaternion(
+            x=self.orientation[0],
+            y=self.orientation[1],
+            z=self.orientation[2],
+            w=self.orientation[3]
+        )
+
+        msg.angular_velocity = Vector3(
+            x=self.angular_velocity[0],
+            y=self.angular_velocity[1],
+            z=self.angular_velocity[2]
+        )
+
+        msg.linear_acceleration = Vector3(
+            x=self.linear_acceleration[0],
+            y=self.linear_acceleration[1],
+            z=self.linear_acceleration[2]
+        )
+
+        # Covariance can be filled if known, otherwise -1 means "unknown"
+        msg.orientation_covariance[0] = -1.0
+        msg.angular_velocity_covariance[0] = -1.0
+        msg.linear_acceleration_covariance[0] = -1.0
+
+        self.publisher_.publish(msg)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = ImuPublisher()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        node.get_logger().info("IMU publisher stopped.")
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
