@@ -5,6 +5,7 @@ from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Quaternion, Vector3
 from std_msgs.msg import Header
 from icm20948 import ICM20948
+from smbus2 import SMBus
 
 
 class ImuPublisher(Node):
@@ -23,13 +24,18 @@ class ImuPublisher(Node):
     def persistentInit(self):
         while True:
             try:
-                imu = ICM20948()
-                print("IMU initialized after {:d} attempts".format(self.n_attempts))
+                # to use i2c bus 4 on pi 5, add the line:
+                # dtoverlay=i2c-gpio,bus=4,i2c_gpio_delay_us=1,i2c_gpio_sda=27,i2c_gpio_scl=22
+                # to
+                # sudo nano /boot/firmware/config.txt
+
+                imu = ICM20948(i2c_bus=SMBus(4))
+                # print("IMU initialized after {:d} attempts".format(self.n_attempts))
                 self.n_attempts = 0
                 return imu
-            except:
+            except IOError as e:
                 self.n_attempts += 1
-                if self.n_attempts > 10:
+                if self.n_attempts > 100:
                     break
                 pass
     
@@ -41,9 +47,13 @@ class ImuPublisher(Node):
             self.linear_acceleration = (ax, ay, az)
             return 0
 
-        except:
-            self.get_logger().error(f'IMU read error')
+        except IOError as e:
+            # self.get_logger().error(f'IMU read error: {e}')
             self.imu = self.persistentInit()
+            return 1
+            
+        except Exception as e:
+            # self.get_logger().error(f'Unexpected error: {e}')
             return 1
             
     def publish_imu(self):
@@ -86,10 +96,10 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info("IMU publisher stopped.")
+        pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        # rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
