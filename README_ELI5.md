@@ -66,7 +66,7 @@ Read this [section](#understanding-ros) if the question - "Why ROS?"
   If the image is inverted, use the command\
   ```ros2 run camera_ros camera_node --ros-args -p orientation:=180```\
   To set resolution, use the command\
-  ```ros2 run camera_ros camera_node --ros-args -p orientation:=180 -p width:=800 -p height:=600```
+  ```ros2 run camera_ros camera_node --ros-args -p orientation:=320 -p width:=240 -p height:=180 -p format:=XRGB8888```
   - To get better frame rate on the stream, use /camera/image_raw/compressed node
   - If you face issues getting the /image/compressed working, you may need to install *image-transport-plugins* using\
   ```apt install ros-$ROS_DISTRO-image-transport-plugins```
