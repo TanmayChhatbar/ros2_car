@@ -6,7 +6,10 @@ def generate_launch_description():
 
     imu_telemetry_node = Node(
         package='command_control',
-        executable='joystick_control'
+        executable='joystick_control',
+        parameters=[{
+            'use_simagic_controller': False
+        }]
     )
 
     rqt_image_node = Node(

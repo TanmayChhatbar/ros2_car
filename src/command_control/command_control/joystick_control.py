@@ -3,7 +3,6 @@
 # joystick stuff
 import pygame
 from command_control.racecar_joystick import RacecarJoystick
-import time # test
 
 # ros stuff
 import rclpy
