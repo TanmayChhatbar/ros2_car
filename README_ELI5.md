@@ -90,13 +90,27 @@ Build libcamera and rpicam-apps from source following this [guide](https://www.r
 ## Installation (Repository)
 
 - Fork this repository on Github (optional, but recommended if you intend to customize your project and track changes using Git on GitHub)
-- Desktop
-  - Clone forked repository on desktop (clone this repo if you haven't forked)
-  - Switch to branch `feature/ros/desktop`
-- Pi
-  - Clone forked repository on Pi
-  - Switch to branch `feature/ros/pi`
-
+- Remote car control
+  - Desktop
+    - Clone forked repository on desktop (clone this repo if you haven't forked)
+    - Switch to branch `feature/ros/desktop`
+  - Pi
+    - Clone forked repository on Pi
+    - Switch to branch `feature/ros/pi`
+- Simulation
+  - Desktop (only desktop needed)
+    - Clone the repo
+    - Switch to branch `feature/vehicle_sim_ros`
+    - Enable [joystick support](#joystick-support)
+    - Verify file paths for the mesh files in the URDF file
+    - Connect joystick controller
+    - Navigate to this workspace in a terminal using ```cd path/to/workspace```
+    - Build packages in workspace using ```colcon build```
+    - Source workspace package data using ```source install/setup.bash```
+    - (optional) Select vehicle to be simulated in the launch file
+    - Launch project using ```ros2 launch launch/vehicle_sim_joystick.py```
+    - Enjoy
+  
 ## Understanding ROS
 
 - **What is ROS?**
@@ -105,7 +119,3 @@ Each part may speak its own "language". ROS helps them all talk to each other sm
 ROS is a essentially a software Lego set for building robotic systems. It provides ready-made tools and libraries to handle common tasks like controlling actuators, processing sensor data, or even communicating with other robots\
 In short, ROS is the software glue that connects all the hardware and software pieces of a robot, making it easier to build, program, and control robots.
 - **Understand the basic tools** ROS2 provides with [Beginner: CLI Tools](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools.html) section
-
-## Gazebo Simulation
-
-- WIP future
