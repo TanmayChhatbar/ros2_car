@@ -51,7 +51,7 @@ Read this [section](#understanding-ros) if the question - "Why ROS?"
 
 ## Camera Support
 
-- Build libcamera and rpicam-apps from source following this [guide](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera)
+- (skip this step if all you need is camera support for ROS2, just install libcamera support for ROS2) Build libcamera and rpicam-apps (rpicam-apps seems optional) from source following this [guide](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera)
   - (optional) When building rpicam-apps, enable libav support to allow capturing video
   - libcamera that comes with apt does not detect Pi Camera on Ubuntu\
   Hence, these libraries must be built from the [fork](https://github.com/raspberrypi/libcamera) developed by raspberrypi
@@ -59,6 +59,7 @@ Read this [section](#understanding-ros) if the question - "Why ROS?"
   - (Note) Installation using ```sudo apt install ros-$ROS_DISTRO-camera-ros``` breaks the libcamera/rpicam-apps\
   ```libcamera-hello``` no longer is able to find a camera
   - Follow the *Build Instructions - Source* to enable camera support for ROS2.
+- Verify libcamera support
   - To start the camera stream, use the command\
   ```ros2 run camera_ros camera_node```
   - To visualize the camera stream, use the command\
@@ -67,6 +68,8 @@ Read this [section](#understanding-ros) if the question - "Why ROS?"
   ```ros2 run camera_ros camera_node --ros-args -p orientation:=180```\
   To set resolution, use the command\
   ```ros2 run camera_ros camera_node --ros-args -p orientation:=180 -p width:=800 -p height:=600```
+  Update: To get rqt_image_view to work with minimal warnings, use this command instead\
+  ```ros2 run rqt_image_view rqt_image_view --ros-args --remap /camera/image_raw/_image_transport:=raw```
   - To get better frame rate on the stream, use /camera/image_raw/compressed node
   - If you face issues getting the /image/compressed working, you may need to install *image-transport-plugins* using\
   ```apt install ros-$ROS_DISTRO-image-transport-plugins```
