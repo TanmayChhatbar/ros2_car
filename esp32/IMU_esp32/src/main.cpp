@@ -23,19 +23,20 @@ void setup(void)
   while (!Serial)
     delay(10);
   Serial.println("Adafruit ICM20948 test!");
-  Wire.setPins(9, 8);
-  // if (!icm.begin_I2C(0x68, &Wire))
-  if (!icm.begin_SPI(ICM_CS, ICM_SCK, ICM_MISO, ICM_MOSI))
+  Wire.setPins(7, 6);
+  
+  if (!icm.begin_I2C(0x68, &Wire))
+  // if (!icm.begin_SPI(ICM_CS, ICM_SCK, ICM_MISO, ICM_MOSI))
   {
     Serial.println("Failed to find ICM20948 chip");
     pinMode(LED_BUILTIN, OUTPUT);
-    uint tdelay = 100;
+    uint tdelay = 50;
     uint d = 0;
     float freq = 0.5;
     while (1)
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      delay(tdelay/10);
+      delay(tdelay/50);
       digitalWrite(LED_BUILTIN, LOW);
       delay(tdelay);
       // d += 1;
@@ -147,5 +148,5 @@ void loop()
   Serial.println(" radians/s ");
   Serial.println();
 
-  delay(1000);
+  delay(10);
 }
