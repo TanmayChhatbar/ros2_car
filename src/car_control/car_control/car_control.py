@@ -6,6 +6,7 @@ from std_msgs.msg import Header
 import board
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
+# from as5600 import AS5600
 
 # from joystick
 class controlCMD:
@@ -45,11 +46,16 @@ class CarControlSubscriber(Node):
         self.subscription  # prevent unused variable warning
         self.publisher_exists = True
 
+        # self.timer = self.create_timer(0.02, self.control_callback) # 50 hz
+
         # safety reset commands if no publishers
         self.timer = self.create_timer(0.1, self.check_publishers)
 
         # control commands from /joy
         self.control = controlCMD()
+
+        # feedback from hall sensor
+        # self.hall_sensor = AS5600()
 
         # to hardware
         i2c = board.I2C()
@@ -72,7 +78,19 @@ class CarControlSubscriber(Node):
         #TODO hall sensor closed loop feedback
         #TODO use handbrake
 
+    # def control_callback(self):
+        # closed loop control
+        #TODO
+        # get feedback
+        # self.hall_sensor.update()
+        # angle = self.hall_sensor.get_angle_degrees()
+        # velocity = self.hall_sensor.get_velocity()
+        # self.get_logger().info(f"Hall sensor angle: {angle:.2f} degrees, velocity: {velocity:.2f} deg/s")
+
+
     def listener_callback(self, msg):
+        if not msg:
+            msg = self.subscription.last_message
         # parse joystick message and write to hardware
         self.control.steering = msg.axes[0]
         self.control.throttle = msg.axes[1]
