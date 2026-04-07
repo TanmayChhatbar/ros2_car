@@ -10,13 +10,15 @@ VehicleCruiseControl::VehicleCruiseControl()
     brake_input = 0.0;
     prev_error = 0.0;
     integral = 0.0;
+    dt = 0.01;
 }
-VehicleCruiseControl::VehicleCruiseControl(double target_speed_, double kp_, double ki_, double kd_)
+VehicleCruiseControl::VehicleCruiseControl(double target_speed_, double kp_, double ki_, double kd_, double dt_)
 {
     target_speed = target_speed_;
     kp = kp_;
     ki = ki_;
     kd = kd_;
+    dt = dt_;
     throttle_input = 0.0;
     brake_input = 0.0;
     prev_error = 0.0;
@@ -53,8 +55,8 @@ void VehicleCruiseControl::setKd(double kd_)
 void VehicleCruiseControl::calcCruiseControlInputs(const double vx)
 {
     double error = target_speed - vx;
-    integral += error;
-    double derivative = error - prev_error;
+    integral += error * dt;
+    double derivative = (error - prev_error) / dt;
 
     throttle_input = kp * error + ki * integral + kd * derivative;
 

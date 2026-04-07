@@ -6,7 +6,7 @@ class VehicleCruiseControl
 {
 public:
     VehicleCruiseControl();
-    VehicleCruiseControl(double target_speed_, double kp_, double ki_, double kd_);
+    VehicleCruiseControl(double target_speed_, double kp_, double ki_, double kd_, double dt_);
     void setTargetSpeed(double target_speed_);
     void setKp(double kp_);
     void setKi(double ki_);
@@ -25,4 +25,5 @@ private:
     double brake_input;    // [-1, 1] steering input
     double prev_error;     // previous error for derivative calculation
     double integral;       // integral of error for integral calculation
+    double dt;             // time step for derivative and integral calculation
 };
