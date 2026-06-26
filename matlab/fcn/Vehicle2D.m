@@ -1,4 +1,4 @@
-classdef Vehicle2D
+classdef Vehicle2D < handle
     properties
         data
         config
@@ -202,19 +202,20 @@ classdef Vehicle2D
             % check for negative normal loads
             neg_count = 0;
             Fz_neg = 0;
-            for i = 1:4
-                if (Fz_wheel(i) < 0)
-                    neg_count = neg_count + 1;
-                    Fz_neg = Fz_neg + Fz_wheel(i);
-                    Fz_wheel(i) = 0;
-                end
-            end
-
-            % if neg count, distribute loads evenly
-            if neg_count > 0
+            if ~isa(Fz_wheel, 'sym')
                 for i = 1:4
-                    if Fz_wheel(i) > 0
-                        Fz_wheel(i) = Fz_wheel(i) + Fz_neg / (4 - neg_count);
+                    if (Fz_wheel(i) < 0)
+                        neg_count = neg_count + 1;
+                        Fz_neg = Fz_neg + Fz_wheel(i);
+                        Fz_wheel(i) = 0;
+                    end
+                end
+                % if neg count, distribute loads evenly
+                if neg_count > 0
+                    for i = 1:4
+                        if Fz_wheel(i) > 0
+                            Fz_wheel(i) = Fz_wheel(i) + Fz_neg / (4 - neg_count);
+                        end
                     end
                 end
             end
@@ -228,7 +229,10 @@ classdef Vehicle2D
             vx = obj.data.vx;
             % vy = obj.data.vy;
             w_yaw = obj.data.w_yaw;
-        
+            if (isa(obj.config.CDx, 'sym'))
+                F = sym(F);
+                M = sym(M);
+            end
             F(1) = -0.5 * obj.config.CDx * obj.config.rho * obj.config.Af * vx^2;
             M(3) = -0.5 * obj.config.CMz * obj.config.rho * obj.config.Af * w_yaw^2;
         end
@@ -252,6 +256,10 @@ classdef Vehicle2D
             % resolve forces in vehicle frame for wheels that steer
             Fx_body = zeros(1, 4);
             Fy_body = zeros(1, 4);
+            if isa(Fx_wheel, 'sym')
+                Fx_body = sym(Fx_body);
+                Fy_body = sym(Fy_body);
+            end
             for i = 1:2
                 Fx_temp = Fx_wheel(i);
                 Fx_body(i) = Fx_temp * cos(steering_angle) - Fy_wheel(i) * sin(steering_angle);

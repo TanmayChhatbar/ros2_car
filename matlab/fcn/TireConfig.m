@@ -23,7 +23,7 @@ classdef TireConfig
         function [Fx_wheel, Fy_wheel] = calcTireForces(obj, slip_angle, slip_ratio, w_wheel, Fz_wheel)
             slip_angle_corr = slip_angle * min(1, abs(w_wheel)*0.01);
             slipNet = sqrt(slip_angle_corr^2 + slip_ratio^2 * obj.f^2);
-            if slipNet < 1e-9
+            if ~isa(slipNet, 'sym') && slipNet < 1e-9
                 Fx_wheel = 0;
                 Fy_wheel = 0;
             else
