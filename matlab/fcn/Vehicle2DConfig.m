@@ -39,7 +39,18 @@ classdef Vehicle2DConfig
                 CDx_, CMz_, Af_, rho_)
 
             if nargin == 1
-                obj = Vehicle2DConfig.loadFromFile(filename_or_wheelbase_);
+                if strcmp(filename_or_wheelbase_, 'sym')
+                    obj.tire_config = TireConfig('sym');
+                    obj.drivetrain_type = sym(0);
+                    obj.differential_type = sym(1);
+                    fns = string(fieldnames(obj))';
+                    fns = fns(~(fns == "tire_config" | fns == "drivetrain_type" | fns == "differential_type"));
+                    for fn = fns
+                        obj.(fn) = sym(fn);
+                    end
+                else
+                    obj = Vehicle2DConfig.loadFromFile(filename_or_wheelbase_);
+                end
             else
                 obj.wheelbase = filename_or_wheelbase_;
                 obj.track_width = track_width_;
@@ -58,20 +69,15 @@ classdef Vehicle2DConfig
                 obj.gear_ratio = gear_ratio_;
                 obj.brake_Tmax = brake_Tmax_;
                 obj.brake_bias = brake_bias_;
-                switch drivetrain_type_
-                case 0
-                    obj.drivetrain_type = "RWD";
-                case 1
-                    obj.drivetrain_type = "AWD";
-                case 2
-                    obj.drivetrain_type = "FWD";
-                end
-                switch differential_type_
-                case 0
-                    obj.differential_type = "DIFF_OPEN";
-                case 1
-                    obj.differential_type = "DIFF_LOCKED";
-                end
+                obj.drivetrain_type = drivetrain_type_;
+                % 0 = obj.drivetrain_type = "RWD";
+                % 1 = obj.drivetrain_type = "AWD";
+                % 2 = obj.drivetrain_type = "FWD";
+                
+                obj.differential_type = differential_type_;
+                % 0 = obj.differential_type = "DIFF_OPEN";
+                % 1 = obj.differential_type = "DIFF_LOCKED";
+
                 obj.diff_damping = diff_damping_;
                 obj.tire_config = TireConfig(tire_config_);
                 obj.CDx = CDx_;

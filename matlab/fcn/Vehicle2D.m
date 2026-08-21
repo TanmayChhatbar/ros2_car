@@ -1,4 +1,4 @@
-classdef Vehicle2D < handle
+classdef Vehicle2D < matlab.mixin.Copyable
     properties
         data
         config
@@ -55,11 +55,11 @@ classdef Vehicle2D < handle
 
         function obj = calcTractionTorques(obj)
             switch obj.config.drivetrain_type
-                case "FWD"
+                case 2
                     obj.calcTractionTorquesFWD();
-                case "AWD"
+                case 1
                     obj.calcTractionTorquesAWD();
-                case "RWD"
+                case 0
                     obj.calcTractionTorquesRWD();
                 otherwise  % "RWD" or default
                     error("Invalid drivetrain_type")
@@ -155,13 +155,21 @@ classdef Vehicle2D < handle
         
             % calculate slip angles
             slip_angle = atan2(vyw, vxw);
-            slip_ratio = nan(1, 4);
+            if isa(vyw, 'sym')
+                slip_ratio = sym('slip_ratio', size(vxw));
+            else
+                slip_ratio = nan(1, 4);
+            end
         
             % calculate tire forces
             slip_threshold = 0.5; % threshold for slip ratio
             for i = 1:4
                 % calc slip ratios
-                denominator = max(max(abs(w_wheel(i) * r_wheel), abs(vxw(i))), slip_threshold);
+                if isa(vyw, 'sym')
+                    denominator = max(abs(w_wheel(i) * r_wheel), abs(vxw(i)));
+                else
+                    denominator = max(max(abs(w_wheel(i) * r_wheel), abs(vxw(i))), slip_threshold);
+                end
                 slip_ratio(i) = (w_wheel(i) * r_wheel - vxw(i)) / denominator;
         
                 % calculate tire forces
@@ -229,7 +237,7 @@ classdef Vehicle2D < handle
             vx = obj.data.vx;
             % vy = obj.data.vy;
             w_yaw = obj.data.w_yaw;
-            if (isa(obj.config.CDx, 'sym'))
+            if (isa(obj.data.w_yaw, 'sym'))
                 F = sym(F);
                 M = sym(M);
             end
@@ -315,14 +323,14 @@ classdef Vehicle2D < handle
 
             a_wheel = (wheel_torques - Fx_wheel.*wheel_radius) / I_wheel;
             differential_type = obj.config.differential_type;
-            if (differential_type == "DIFF_LOCKED")
+            if (differential_type == 1)
                 drivetrain_type = obj.config.drivetrain_type;
-                if (drivetrain_type == "RWD" || drivetrain_type == "AWD")
+                if (drivetrain_type == 0 || drivetrain_type == 1)
                     a_wheel_rear = (a_wheel(3) + a_wheel(4)) / 2;
                     a_wheel(3) = a_wheel_rear;
                     a_wheel(4) = a_wheel_rear;
                 end
-                if (drivetrain_type == "FWD" || drivetrain_type == "AWD")
+                if (drivetrain_type == 2 || drivetrain_type == 1)
                     a_wheel_front = (a_wheel(1) + a_wheel(2)) / 2;
                     a_wheel(1) = a_wheel_front;
                     a_wheel(2) = a_wheel_front;
@@ -332,13 +340,13 @@ classdef Vehicle2D < handle
         end
 
         function obj = calcNewState(obj, dt)
-            vx = obj.data.vx;
-            vy = obj.data.vy;
-            w_yaw = obj.data.w_yaw;
-        
             ax = obj.data.ax;
             ay = obj.data.ay;
             a_yaw = obj.data.a_yaw;
+        
+            vx = obj.data.vx;
+            vy = obj.data.vy;
+            w_yaw = obj.data.w_yaw;
         
             X = obj.data.X;
             Y = obj.data.Y;
@@ -373,6 +381,7 @@ classdef Vehicle2D < handle
             obj.data.vy = vy;
             obj.data.w_yaw = w_yaw;
             obj.data.p_wheel = p_wheel;
+            obj.data.w_wheel = w_wheel;
         end
 
         function obj = stepSimulation(obj, dt, steering_input, throttle_input, brake_input)
