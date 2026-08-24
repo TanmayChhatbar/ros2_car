@@ -11,16 +11,6 @@ vehicle = Vehicle2D(config);
 %% simulation parameters
 dt = 0.001;      % [s]
 
-%% initial
-syms throttle_input steering_input
-brake_input = sym(0);    % [0 to 1]
-vehicle.data.vx = sym(1);
-
-%% assumptions
-% assume(vehicle.data.w_wheel(3:4) > 0)
-% assume(gear_ratio > 0)
-% assume(throttle_input > 0)
-
 %% optimize
 % targets - vx, vy
 % control inputs - rear wheel speed, steering angle, yaw rate
@@ -38,7 +28,7 @@ lb = [0 -2*pi/3  -5];
 ub = [1e3 2*pi/3 5];
 
 % optimize u to make all values in g = 0
-getStateGradient(vehicle, x_des, u0)
+% getStateGradient(vehicle, x_des, u0)
 fv = @(u) getStateGradient(vehicle, x_des, u);
 f = @(u) getStateGradient(vehicle, x_des, u, true);
 
@@ -52,7 +42,7 @@ opts = optimoptions(@fmincon, 'Algorithm','sqp', 'Display', 'iter');
 problem = createOptimProblem('fmincon','objective',...
     f,'x0',u0,'lb',lb,'ub',ub,'options',opts);
 gs = GlobalSearch;
-[uopt,f] = run(gs,problem)
+[uopt,f] = run(gs,problem);
 gv = getStateGradient(vehicle, x_des, uopt)
 
 

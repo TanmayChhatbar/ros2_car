@@ -166,7 +166,15 @@ classdef Vehicle2D < matlab.mixin.Copyable
             for i = 1:4
                 % calc slip ratios
                 if isa(vyw, 'sym')
-                    denominator = max(abs(w_wheel(i) * r_wheel), abs(vxw(i)));
+                    if i <= 2
+                        % front wheels spin slower than kinematic
+                        denominator = vxw(i);
+                        assume(vxw(i) >= w_wheel(i) * r_wheel)
+                    else
+                        % rear wheels spin faster than kinematic
+                        denominator = w_wheel(i) * r_wheel;
+                        assume(vxw(i) <= w_wheel(i) * r_wheel)
+                    end
                 else
                     denominator = max(max(abs(w_wheel(i) * r_wheel), abs(vxw(i))), slip_threshold);
                 end
@@ -319,7 +327,6 @@ classdef Vehicle2D < matlab.mixin.Copyable
         
             wheel_torques = obj.data.wheel_torques;
             Fx_wheel = obj.data.Fx_wheel;
-            Fy_wheel = obj.data.Fy_wheel;
 
             a_wheel = (wheel_torques - Fx_wheel.*wheel_radius) / I_wheel;
             differential_type = obj.config.differential_type;
