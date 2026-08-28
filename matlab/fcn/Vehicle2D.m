@@ -181,7 +181,7 @@ classdef Vehicle2D < matlab.mixin.Copyable
                 slip_ratio(i) = (w_wheel(i) * r_wheel - vxw(i)) / denominator;
         
                 % calculate tire forces
-                [Fx_wheel(i), Fy_wheel(i)] = obj.config.tire_config.calcTireForces(rad2deg(slip_angle(i)), slip_ratio(i), w_wheel(i), Fz_wheel(i));
+                [Fx_wheel(i), Fy_wheel(i)] = obj.config.tire_config.calcTireForces(slip_angle(i), slip_ratio(i), w_wheel(i), Fz_wheel(i));
             end
             obj.data.Fx_wheel = Fx_wheel;
             obj.data.Fy_wheel = Fy_wheel;
@@ -293,9 +293,9 @@ classdef Vehicle2D < matlab.mixin.Copyable
 
             % calculate moments about the center of mass
             Mz = Mz + -Fx_body(1) * half_track_width + Fy_body(1) * a; % front left
-            Mz = Mz + Fx_body(2) * half_track_width + Fy_body(2) * a;  % front right
+            Mz = Mz +  Fx_body(2) * half_track_width + Fy_body(2) * a;  % front right
             Mz = Mz + -Fx_body(3) * half_track_width - Fy_body(3) * b; % rear left
-            Mz = Mz + Fx_body(4) * half_track_width - Fy_body(4) * b;  % rear right
+            Mz = Mz +  Fx_body(4) * half_track_width - Fy_body(4) * b;  % rear right
         
             obj.data.Fx = Fx;
             obj.data.Fy = Fy;

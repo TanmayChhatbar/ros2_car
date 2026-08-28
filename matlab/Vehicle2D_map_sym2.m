@@ -118,13 +118,12 @@ eqn(4) = sum(v3.data.Fx_wheel) - v3.config.mass * (-v3.data.w_yaw * v3.data.vy) 
 eqn(5) = sum(v3.data.Fy_wheel) - v3.config.mass * ( v3.data.w_yaw * v3.data.vx) == 0;
 sv = symvar(eqn);
 idx_targets = contains(string(sv), "_target");
-uv = sv(idx_targets)
-sv = sv(~idx_targets)
+uv = sv(idx_targets);
+sv = sv(~idx_targets);
 
-return
 %% solve
 t_vx = 1;
-t_vy = -0.05;
+t_vy = 4;
 
 % sub targets
 eqn_vsub = subs(eqn, 'vx_target', t_vx);
@@ -132,25 +131,42 @@ eqn_vsub = subs(eqn_vsub, 'vy_target', t_vy);
 % eqn_vsub = simplify(lhs(eqn_vsub)) == 0;
 
 % estimate initial stuff
-est_beta = atan2(t_vy, t_vx);
-est_v = norm([t_vy, t_vx]);
-assumption_latacc = 0.8*9.81 * est_beta;
-est_wz = assumption_latacc / est_v;
-vy_f(1) = t_vy + est_wz * v3.config.a;
-vy_f(2) = t_vy + est_wz * v3.config.a;
-vx_f(1) = t_vx - est_wz * v3.config.track_width / 2;
-vx_f(2) = t_vx + est_wz * v3.config.track_width / 2;
-delta_0slip = mean(atan2(vy_f, vx_f));
-vx_wheelframe = vx_f .* cos(delta_0slip) + vy_f .* sin(delta_0slip);
-w_wheel_front = vx_wheelframe / v3.config.r_wheel;
+[delta_0slip, w_wheel_front, w_r_kinematic, est_wz] = estimateInitial(t_vx, t_vy, v3.config);
 
 % create matlab function
-f2 = matlabFunction(lhs(eqn_vsub), 'Vars',{'steering_angle','w_wheel1','w_wheel2','w_yaw','w_wheel_rear'});
+f2 = matlabFunction(lhs(eqn_vsub), 'Vars', {'steering_angle', 'w_wheel1', 'w_wheel2', 'w_yaw', 'w_wheel_rear'});
 
 % solve
-f2v = @(x) (f2(x(1), x(2), x(3), x(4), x(5)));
-w_r_kinematic = t_vx / v3.config.r_wheel;
-[soln, val] = fsolve(f2v, [delta_0slip, w_wheel_front, est_wz, w_r_kinematic]+0.01)
+% f2v
+% x = [steering angle, 
+%       w_wheel front left, 
+%       w_wheel front right, 
+%       wz,
+%       w_wheel rear (both are equal)
+%       ]
+f2v = @(x) (f2(x(1), x(2), x(3), x(4), x(5))).^2;
+f2vn = @(x) sum(f2v(x));
+% [soln, val] = fsolve(f2v, [delta_0slip, w_wheel_front, est_wz, w_r_kinematic]+0.01)
+
+% global search
+x0x = [delta_0slip, w_wheel_front, est_wz, w_r_kinematic]+0.01;
+lbx = [-pi/2, w_wheel_front*0, -10, w_r_kinematic];
+ubx = [pi/2, w_wheel_front*2.0, 10, 5000];
+gs = GlobalSearch;
+gs.NumTrialPoints = 1e4;
+problem = createOptimProblem("fmincon", ...
+    x0=x0x, ...
+    objective=f2vn, ...
+    lb=lbx, ...
+    ub=ubx);
+[optx, valn] = run(gs, problem)
+val = f2v(optx);
+
+%% simulate
+
+
+%% visualize
+
 
 %% functions
 function d = toSym(d)
@@ -183,10 +199,10 @@ end
 end
 
 function s = subs2(s, sv_strings, vals)
-if length(vals) == 1
-    isscalar = true;
+if isscalar(vals)
+    iss = true;
 elseif length(vals) == length(sv_strings)
-    isscalar = false;
+    iss = false;
 else
     error('length of vals must be equal to 1 or to that of sv_strings')
 end
@@ -204,7 +220,7 @@ for j = 1:length(sv_strings)
     if exist('sv')
         for fni = 1:length(fns)
             fn = fns(fni);
-            if isscalar
+            if iss
                 s.(fn) = subs(s.(fn), sv, vals);
             else
                 s.(fn) = subs(s.(fn), sv, vals(j));
@@ -214,29 +230,28 @@ for j = 1:length(sv_strings)
 end
 end
 
+function [delta_0slip, w_wheel_front, w_r_kinematic, est_wz] = estimateInitial(t_vx, t_vy, config)
+% estimate initial guesses based on target velocities
 
-function wf = solveFrontWheelSpeeds(vx, vy, wz, delta, r_wheel, eqns)
+est_beta = atan2(t_vy, t_vx);
+est_v = norm([t_vy, t_vx]);
+assumption_latacc = 0.8*9.81 * est_beta;
+est_wz = assumption_latacc / est_v;
 
-f_w1 = subs(lhs(eqns(1)), ...
-        {'steering_angle', 'vx_target', 'vy_target', 'w_yaw'}, ...
-        [delta, vx, vy, wz]);
-f_w2 = subs(lhs(eqns(2)), ...
-        {'steering_angle', 'vx_target', 'vy_target', 'w_yaw'}, ...
-        [delta, vx, vy, wz]);
-vs = symvar(eqns);
+% calc velocities at wheels
+vy_f = t_vy + [ 1 1] * est_wz * config.a;
+vx_f = t_vx + [-1 1] * est_wz * config.track_width / 2;
 
-assume(vs(contains(string(vs), "w_wheel")) > 0)
-assume(vs(vs == "steering_angle") < pi/2)
-assume(vs(vs == "steering_angle") > -pi/2)
+% delta for slip-angle = 0
+delta_0slip = mean(atan2(vy_f, vx_f));
 
-f_w1 = simplify(f_w1);
-f_w2 = simplify(f_w2);
+% velocities in wheel frame
+vx_wheelframe = vx_f .* cos(delta_0slip) + vy_f .* sin(delta_0slip);
+% vy_wheelframe = vx_f .* sin(delta_0slip) - vy_f .* cos(delta_0slip);
 
-f_w1b = matlabFunction(f_w1);
-f_w2b = matlabFunction(f_w2);
+% rotational rate of wheel for kinematic rolling
+w_wheel_front = vx_wheelframe / config.r_wheel;
 
-% wf(1) = fsolve(f_w1b, vx / r_wheel + 0.001);
-wf(1) = fsolve(f_w1b, vx / r_wheel + 0.001);
-wf(2) = fsolve(f_w2b, vx / r_wheel + 0.001);
+w_r_kinematic = t_vx / config.r_wheel;
 
 end

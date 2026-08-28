@@ -7,6 +7,7 @@ classdef TireConfig
         f
         coeff_rr
         coeff_stiction
+        is_radian
     end
 
     methods
@@ -23,17 +24,24 @@ classdef TireConfig
                 obj.f = s.f;
                 obj.coeff_rr = s.coeff_rr;
                 obj.coeff_stiction = s.coeff_stiction;
+                obj.is_radian = 0;
             end
         end
-
+        
+        function obj = inputRadian(obj)
+            obj.is_radian = 1;
+        end
         function [Fx_wheel, Fy_wheel] = calcTireForces(obj, slip_angle, slip_ratio, w_wheel, Fz_wheel)
             if isa(slip_angle, 'sym')
                 slip_angle_corr = slip_angle;
             else
-                slip_angle_corr = slip_angle * min(1, abs(w_wheel)*0.01);
+                slip_angle_corr = slip_angle .* min(1, abs(w_wheel)*0.01);
+                if (obj.is_radian)
+                    slip_angle_corr = rad2deg(slip_angle_corr);
+                end
             end
-            slipNet = sqrt(slip_angle_corr^2 + slip_ratio^2 * obj.f^2);
-            if ~isa(slipNet, 'sym') && slipNet < 1e-9
+            slipNet = sqrt(slip_angle_corr.^2 + (slip_ratio.*obj.f).^2);
+            if isscalar(slipNet) && ~isa(slipNet, 'sym') && slipNet < 1e-9
                 Fx_wheel = 0;
                 Fy_wheel = 0;
             else
@@ -44,9 +52,12 @@ classdef TireConfig
                 else
                     F_rolling_stiction = obj.coeff_stiction * Fz_wheel * sign(w_wheel) * min(abs(w_wheel)*100, 1);
                 end
-                F_partial = Fz_wheel * Fnet / slipNet;
-                Fx_wheel = F_partial * (slip_ratio * obj.f) - F_rolling_resistance - F_rolling_stiction;
-                Fy_wheel = - F_partial * slip_angle_corr;
+                F_partial = Fz_wheel * Fnet ./ slipNet;
+                if ~isa(slip_angle, 'sym')
+                    F_partial(slipNet < 1e-9) = 0;
+                end
+                Fx_wheel = F_partial .* (slip_ratio * obj.f) - F_rolling_resistance - F_rolling_stiction;
+                Fy_wheel = - F_partial .* slip_angle_corr;
             end
         end
     end
