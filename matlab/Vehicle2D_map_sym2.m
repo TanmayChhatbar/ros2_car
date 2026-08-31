@@ -144,15 +144,19 @@ f2 = matlabFunction(lhs(eqn_vsub), 'Vars', {'steering_angle', 'w_wheel1', 'w_whe
 %       wz,
 %       w_wheel rear (both are equal)
 %       ]
+scale = [1; 100; 100; 1000; 100]';
 f2v = @(x) (f2(x(1), x(2), x(3), x(4), x(5)));
-f2vn = @(x) sum(f2v(x));
-% opts = optimoptions('fsolve', 'MaxFunctionEvaluations', 1e5, 'MaxIterations',1e4);
+f2vn = @(x) sum(((f2v(x)./scale)).^2);
+
+%% fsolve
+% opts = optimoptions('fsolve', 'MaxFunctionEvaluations', 1e5, 'MaxIterations',1e5);
 % [soln, val] = fsolve(f2v, [delta_0slip, w_wheel_front, est_wz, w_r_kinematic]-0.1, opts)
+% return
 
 %% global search
 x0x = [delta_0slip, w_wheel_front, est_wz, w_r_kinematic];
-lbx = [-pi/2, w_wheel_front*0, -10, w_r_kinematic];
-ubx = [pi/2, w_wheel_front*2.0, 10, 5000];
+lbx = [-pi/2, w_wheel_front*0.8, -10, w_r_kinematic];
+ubx = [pi/2, w_wheel_front*1.2, 10, w_r_kinematic*40];
 gs = GlobalSearch;
 gs.NumTrialPoints = 1e4;
 problem = createOptimProblem("fmincon", ...
@@ -162,6 +166,13 @@ problem = createOptimProblem("fmincon", ...
     ub=ubx);
 [optx, valn] = run(gs, problem)
 val = f2v(optx);
+
+opt.delta = optx(1);
+opt.w_wheel_front_left = optx(2);
+opt.w_wheel_front_right = optx(3);
+opt.wz = optx(4);
+opt.w_wheel_rear = optx(5);
+opt.score = f2v(optx);
 
 %% simulate
 
