@@ -82,7 +82,7 @@ v2.data = subs2(v2.data, string(v2.data.wheel_torques), 0);
 % ax = -w*vy
 % ay = w*vx
 v2.data = subs2(v2.data, "ax", -v2.data.w_yaw * v2.data.vy);
-v2.data = subs2(v2.data, "ay", v2.data.w_yaw * v2.data.vx);
+v2.data = subs2(v2.data, "ay",  v2.data.w_yaw * v2.data.vx);
 
 % w = -ax/vy = ay/vx
 % ay = -ax*vx/vy
@@ -114,8 +114,8 @@ clear eqn
 eqn(1) = v3.data.a_yaw == 0;
 eqn(2) = v3.data.a_wheel(1) == 0;
 eqn(3) = v3.data.a_wheel(2) == 0;
-eqn(4) = sum(v3.data.Fx_wheel) - v3.config.mass * (-v3.data.w_yaw * v3.data.vy) == 0;
-eqn(5) = sum(v3.data.Fy_wheel) - v3.config.mass * ( v3.data.w_yaw * v3.data.vx) == 0;
+eqn(4) = v3.data.Fx - v3.config.mass * (-v3.data.w_yaw * v3.data.vy) == 0;
+eqn(5) = v3.data.Fy - v3.config.mass * ( v3.data.w_yaw * v3.data.vx) == 0;
 sv = symvar(eqn);
 idx_targets = contains(string(sv), "_target");
 uv = sv(idx_targets);
@@ -144,12 +144,13 @@ f2 = matlabFunction(lhs(eqn_vsub), 'Vars', {'steering_angle', 'w_wheel1', 'w_whe
 %       wz,
 %       w_wheel rear (both are equal)
 %       ]
-f2v = @(x) (f2(x(1), x(2), x(3), x(4), x(5))).^2;
+f2v = @(x) (f2(x(1), x(2), x(3), x(4), x(5)));
 f2vn = @(x) sum(f2v(x));
-% [soln, val] = fsolve(f2v, [delta_0slip, w_wheel_front, est_wz, w_r_kinematic]+0.01)
+% opts = optimoptions('fsolve', 'MaxFunctionEvaluations', 1e5, 'MaxIterations',1e4);
+% [soln, val] = fsolve(f2v, [delta_0slip, w_wheel_front, est_wz, w_r_kinematic]-0.1, opts)
 
-% global search
-x0x = [delta_0slip, w_wheel_front, est_wz, w_r_kinematic]+0.01;
+%% global search
+x0x = [delta_0slip, w_wheel_front, est_wz, w_r_kinematic];
 lbx = [-pi/2, w_wheel_front*0, -10, w_r_kinematic];
 ubx = [pi/2, w_wheel_front*2.0, 10, 5000];
 gs = GlobalSearch;
@@ -226,6 +227,7 @@ for j = 1:length(sv_strings)
                 s.(fn) = subs(s.(fn), sv, vals(j));
             end
         end
+        clear sv
     end
 end
 end

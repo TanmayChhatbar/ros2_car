@@ -119,7 +119,7 @@ classdef Vehicle2D < matlab.mixin.Copyable
 
             % common torques
             net_wheel_torque = motor_torque * gear_ratio / 2;
-            damping_torque_front = diff_damping * diff(w_wheel(3:4));
+            damping_torque_front = diff_damping * diff(w_wheel(1:2));
 
             % wheel torques
             wheel_torques = [net_wheel_torque+[-1 1]*damping_torque_front 0 0];
