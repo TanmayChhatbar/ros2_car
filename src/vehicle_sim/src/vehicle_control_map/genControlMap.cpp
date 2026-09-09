@@ -81,7 +81,7 @@ int main()
     }
 
     const uint n_points = csv_data.size();
-
+    uint count = 0;
 #if USE_NLOPT
 #pragma omp parallel for
 #endif
@@ -119,7 +119,8 @@ int main()
         {
 #pragma omp critical
             {
-                std::cout << std::setw(3) << i + 1 << " / " << n_points << ":\tNo need to optimize (" << previous_score << ")\n";
+                count++;
+                std::cout << std::setw(3) << count << " / " << n_points << ":\tNo need to optimize (" << previous_score << ")\n";
             }
             continue;
         }
