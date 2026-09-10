@@ -17,7 +17,7 @@ int main()
     // load configurations
     Vehicle2DConfig config = Vehicle2DConfig::loadFromFile("configs/toyota_86.json");
     Vehicle2D vehicle = Vehicle2D(config);
-    VehicleCruiseControl cruise_control = VehicleCruiseControl(10, 1, 0.0, 0.5);
+    VehicleCruiseControl cruise_control = VehicleCruiseControl(10, 1, 0.0, 0.5, 0.0001);
 
     // prepare output CSV file
     std::string filename = "build/vehicle_sim_test.csv";
