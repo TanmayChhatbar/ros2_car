@@ -16,8 +16,8 @@
 #define USE_BRUTESOLVER (1 && !USE_NLOPT)
 
 #if USE_NLOPT
-#define NLOPT_SOLVER GN_DIRECT_L_RAND // works very well
-// #define NLOPT_SOLVER GN_ISRES            // works very well
+// #define NLOPT_SOLVER GN_DIRECT_L_RAND // works very well
+#define NLOPT_SOLVER GN_ISRES            // works very well
 // #define NLOPT_SOLVER GN_ORIG_DIRECT      //
 // #define NLOPT_SOLVER GN_DIRECT_NOSCAL    // doesn't work very well
 // #define NLOPT_SOLVER GN_CRS2_LM
@@ -291,8 +291,7 @@ double optimize(Vehicle2D_ST &vehicle, double vx_target, double vy_target)
         score = solver.getScore();
         std::vector<double> opt_trial_point = solver.getSolution();
         double w_wheel[2];
-        w_wheel[2] = opt_trial_point[0]; // rear wheel speed
-        w_wheel[3] = opt_trial_point[0]; // rear wheel speed
+        w_wheel[1] = opt_trial_point[0]; // rear wheel speed
         data.setWheelVelocities(w_wheel);
         data.setSteeringAngle(opt_trial_point[1]);
         data.setAngularVelocities(opt_trial_point[2]);
